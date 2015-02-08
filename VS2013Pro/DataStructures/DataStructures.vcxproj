@@ -41,6 +41,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>..\out\</OutDir>
     <IntDir>..\out\</IntDir>
+    <IncludePath>..\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -68,6 +69,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\datastructures\main.c" />
+    <ClCompile Include="..\src\sort_test.c" />
+    <ClCompile Include="sort.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\sort.h" />
+    <ClInclude Include="..\include\sort_test.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
