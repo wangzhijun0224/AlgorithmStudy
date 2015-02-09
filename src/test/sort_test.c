@@ -1,4 +1,5 @@
 #include "sort.h"
+#include "search.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -23,5 +24,22 @@ void select_sort_test()
 	for (int i = 0; i < MAX_SIZE; ++i)
 	{
 		printf("%d\t", list[i]);
+	}
+
+	// search test
+	int right = MAX_SIZE - 1;
+	if (0 != binary_search(list, list[0], 0, right))
+	{
+		printf("search function has error.\n");
+	}
+
+	if (right != binary_search(list, list[right], 0, right))
+	{
+		printf("search function has error.\n");
+	}
+
+	if (-1 != binary_search(list, list[right+1], 0, right))
+	{
+		printf("search function has error.\n");
 	}
 }

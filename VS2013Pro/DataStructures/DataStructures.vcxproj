@@ -11,10 +11,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\include\search.h" />
     <ClInclude Include="..\..\include\sort.h" />
     <ClInclude Include="..\..\include\sort_test.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\datastructures\search.c" />
     <ClCompile Include="..\..\src\datastructures\sort.c" />
     <ClCompile Include="..\..\src\test\main.c" />
     <ClCompile Include="..\..\src\test\sort_test.c" />
