@@ -10,6 +10,15 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\sort.h" />
+    <ClInclude Include="..\..\include\sort_test.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\datastructures\sort.c" />
+    <ClCompile Include="..\..\src\test\main.c" />
+    <ClCompile Include="..\..\src\test\sort_test.c" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{42128F7D-034E-4167-82A0-C7DCE7142B40}</ProjectGuid>
     <RootNamespace>DataStructures</RootNamespace>
@@ -39,9 +48,9 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>..\out\</OutDir>
-    <IntDir>..\out\</IntDir>
-    <IncludePath>..\include;$(IncludePath)</IncludePath>
+    <OutDir>..\..\out\</OutDir>
+    <IntDir>..\..\out\</IntDir>
+    <IncludePath>..\..\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -67,15 +76,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\src\datastructures\main.c" />
-    <ClCompile Include="..\src\sort_test.c" />
-    <ClCompile Include="sort.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\include\sort.h" />
-    <ClInclude Include="..\include\sort_test.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

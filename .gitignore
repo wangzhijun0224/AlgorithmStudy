@@ -75,6 +75,6 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-VS2013Pro/out/*
+out/*
 *.suo
 *.bak
