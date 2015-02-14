@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{f3bdfdd6-48d6-4958-843c-0ee25c079664}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources">
+      <UniqueIdentifier>{f46865a2-93d0-43ec-8473-766a68f8a51e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="headers\DS_charpter01.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\DS_charpter02.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="sources\DS_charpter01.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\DS_charpter02.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

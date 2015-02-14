@@ -78,3 +78,6 @@ $RECYCLE.BIN/
 out/*
 *.suo
 *.bak
+*.user
+*/Temp/*
+CUnit-Memory-Dump.xml
