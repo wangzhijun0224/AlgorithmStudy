@@ -16,7 +16,23 @@ typedef struct
 	double coef[MAX_DEGREE];		// 系数数组,按照指数降幂排序
 }polynomial1;
 
+/* 多项式表示法2：每一项由系数和阶数组成
+优点: 非零系数较少时，比法一省内存
+*/
+typedef struct
+{
+	float coef;
+	int expon;
+}polyitem;
+
+typedef struct
+{
+	int count;
+	polyitem *poly;
+}polynomial2;
+
 void polynomial1_print(polynomial1* poly);
 double polynomial1_sum(polynomial1* poly, double x0);	// 求多项式在x=x0处的值
-
+void polynomial1_add(polynomial1* a, polynomial1* b, polynomial1* c); // 多项式相加c = a + b
+void polynomial2_add(polynomial2* a, polynomial2* b, polynomial2* c); // 多项式相加c = a + b
 #endif
