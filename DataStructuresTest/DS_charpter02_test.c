@@ -83,6 +83,80 @@ static void polynomial2_add_test0(void)
 	CU_ASSERT_PTR_DATA_EQUAL(poly3.poly, poly4.poly, poly4.count*sizeof(polyitem)); // 可能会出问题,,有浮点数比较
 }
 
+static void sparematrix_set_test(void)
+{
+	sparematrixitem a[9];
+	int col = 6, row = 6;
+
+	sparematrix_set(a, col, row);
+
+	CU_ASSERT_EQUAL(a[0].col, col);
+	CU_ASSERT_EQUAL(a[0].row, row);
+	CU_ASSERT_EQUAL(a[0].value, 0);
+}
+
+static void sparematrix_additem_test(void)
+{
+	sparematrixitem a[9];
+	sparematrixitem b[9] = { 
+		{ 6, 6, 8 },
+		{ 0, 0, 15 },
+		{ 0, 3, 22 },
+		{ 0, 5, -15 },
+		{ 1, 1, 11 },
+		{ 1, 2, 3 },
+		{ 2, 3, -6 },
+		{ 4, 0, 91 },
+		{ 5, 2, 28 },
+	};
+
+	sparematrix_set(a, 6, 6);			// 6行6列
+	sparematrix_additem(a, 0, 0, 15);
+	sparematrix_additem(a, 0, 3, 22);
+	sparematrix_additem(a, 0, 5, -15);
+	sparematrix_additem(a, 1, 1, 11);
+	sparematrix_additem(a, 1, 2, 3);
+	sparematrix_additem(a, 2, 3, -6);
+	sparematrix_additem(a, 4, 0, 91);
+	sparematrix_additem(a, 5, 2, 28);
+	
+	CU_ASSERT_PTR_DATA_EQUAL(a, b, 8*sizeof(sparematrixitem));
+}
+
+static void sparematrix_transpose_test(void)
+{
+	
+	sparematrixitem a[9] = {
+		{ 6, 6, 8 },
+		{ 0, 0, 15 },
+		{ 0, 3, 22 },
+		{ 0, 5, -15 },
+		{ 1, 1, 11 },
+		{ 1, 2, 3 },
+		{ 2, 3, -6 },
+		{ 4, 0, 91 },
+		{ 5, 2, 28 },
+	};
+
+	sparematrixitem b[9] = {
+		{ 6, 6, 8 },
+		{ 0, 0, 15 },
+		{ 0, 4, 91 },
+		{ 1, 1, 11 },
+		{ 2, 1, 3 },
+		{ 2, 5, 28 },
+		{ 3, 0, 22 },
+		{ 3, 2, -6 },
+		{ 5, 0, -15 },
+	};
+
+	sparematrixitem c[9];
+
+	sparematrix_transpose(a, c);
+
+	CU_ASSERT_PTR_DATA_EQUAL(b, c, 8 * sizeof(sparematrixitem));
+}
+
 /***********************************************************************************
 ***********************************************************************************/
 CU_TestInfo tests_datasture_charpter02[] = {
@@ -90,5 +164,8 @@ CU_TestInfo tests_datasture_charpter02[] = {
 	{ "poly1_sum_test1", poly1_sum_test1 },
 	{ "polynomial1_add_test0", polynomial1_add_test0 },
 	{ "polynomial2_add_test0", polynomial2_add_test0 },
+	{ "sparematrix_set_test", sparematrix_set_test },
+	{ "sparematrix_additem_test", sparematrix_additem_test },
+	{ "sparematrix_transpose_test", sparematrix_transpose_test },
 	CU_TEST_INFO_NULL,
 };
