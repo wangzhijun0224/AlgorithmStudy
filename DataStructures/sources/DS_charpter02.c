@@ -296,3 +296,156 @@ static void storesum(sparematrixitem d[], int * indexd, int col, int row, int *s
 		*sum = 0;
 	}
 }
+
+/***********************************************************************************
+	魔方问题:
+		一个魔方就是一个由1到n*n的整数构成的n*n矩阵,其中每行、每列以及两个主对角线上的数字
+	之和相等。
+		当n为奇数时，Coxeter给出了下列产生魔方的简单法则:
+		把1放入第一行最中间的方格中。向左上方移动，并按照数字递增的顺序，把数字填入空方格。
+	如果移出了魔方边界，这进入魔方对边的对应方格。继续填写方格。如果一个方格已被填数字，
+	则向下继续填写方格。
+***********************************************************************************/
+void magic_square_create(int *square, int n)
+{
+	if (NULL == square || n < 1 || ((n%2)!= 1))
+	{
+		printf("input param is error.\n");
+		return;
+	}
+
+	memset(square, 0x00, n*n*sizeof(int));
+
+	int i = 0, j = n / 2;
+
+	square[i*n + j] = 1;
+	for (int data = 2; data <= n*n; data++)
+	{
+		i--;
+		if (i < 0) i = n - 1;
+		
+		j--;
+		if (j < 0) j = n - 1;
+
+		while (square[i*n + j])
+		{
+			i = (i + 2) % n;
+			j = (j + 1) % n;
+		}
+
+		square[i*n + j] = data;
+	}
+
+}
+
+/***********************************************************************************
+	魔方矩阵检查函数：
+		检查了行，列及对角线的和，检查数组是否是由1-n*n的数字组成
+***********************************************************************************/
+int magic_square_check(int *square, int n)
+{
+	if (NULL == square || n < 1)
+	{
+		printf("input param is error.\n");
+		return 0;
+	}
+
+	// 数字检查
+	char *datacheck = (char *)malloc(n*n);
+	if (NULL == datacheck)
+	{
+		printf("\nhave no enough memory.\n"); 
+		return 0;
+	}
+	memset(datacheck, 0x00, n*n);
+	for (int i = 0; i < n * n; i++)
+	{
+		if (square[i] <= n*n)
+			datacheck[square[i]-1] = 1;
+		else
+		{
+			free(datacheck);
+			return 0;
+		}
+	}
+	for (int i = 0; i < n*n; i++)
+	{
+		if (datacheck[i] != 1)
+		{
+			free(datacheck);
+			return 0;
+		}
+			
+	}
+	free(datacheck);
+
+	// 计算第一行的和
+	int sum1 = 0, sum2 = 0;
+	int *p = square;
+
+	for (int i = 0; i < n; i++)
+	{
+		sum1 += square[i];
+	}
+
+	// 每行和检查
+	p += n;
+	for (int i = 1; i < n; i++)
+	{
+		for (int j = 0; j < n; j++)
+		{
+			sum2 += p[j];
+		}
+
+		if (sum2 != sum1)
+		{
+			return 0;
+		}
+		else
+		{
+			sum2 = 0;
+			p += n;
+		}
+	}
+
+	// 每列和检查
+	p = square;
+	for (int i = 0; i < n; i++)	// 列
+	{
+		sum2 = 0;
+		for (int j = 0; j < n; j++)	// 行
+		{
+			sum2 += p[j*n + i];
+		}
+
+		if (sum2 != sum1)
+		{
+			return 0;
+		}
+	}
+
+	// 对角线1检查
+	sum2 = 0;
+	for (int i = 0; i < n; i++)
+	{
+		sum2 += p[i*n + i];
+	}
+	if (sum2 != sum1)
+	{
+		return 0;
+	}
+
+	// 对角线2检查
+	sum2 = 0;
+	for (int i = 0; i < n; i++)
+	{
+		sum2 += p[i*n + (n-i-1)];
+	}
+	if (sum2 != sum1)
+	{
+		return 0;
+	}
+
+	return 1;
+
+}

@@ -57,4 +57,7 @@ void sparematrix_additem(sparematrixitem a[], int col, int row, int value);
 void sparematrix_transpose(sparematrixitem a[], sparematrixitem b[]);	// 稀疏矩阵的转置
 void sparematrix_fast_transpose(sparematrixitem a[], sparematrixitem b[]); // 稀疏矩阵的快速转置
 void sparematrix_mult(sparematrixitem a[], sparematrixitem b[], sparematrixitem d[]); //稀疏矩阵的转置
+
+int magic_square_check(int *square, int n);		// 魔方矩阵判断函数，若是魔方矩阵,则返回1,否则返回0
+void magic_square_create(int *square, int n);	// 魔方矩阵生成函数
 #endif

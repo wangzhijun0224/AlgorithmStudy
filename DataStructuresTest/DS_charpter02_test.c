@@ -227,6 +227,47 @@ static void sparematrix_mult_test(void)
 
 	CU_ASSERT_PTR_DATA_EQUAL(c, d, sizeof(c));
 }
+
+static void magic_square_check_test(void)
+{
+	int a[5][5] = {
+		{15, 8, 1, 24, 17},
+		{16, 14, 7, 5, 23},
+		{22, 20, 13, 6, 4},
+		{3, 21, 19, 12, 10},
+		{9, 2, 25, 18, 11}
+	};
+
+	CU_ASSERT_EQUAL(1, magic_square_check((int*)a, 5));
+}
+
+static void magic_square_create_test0(void)
+{
+	int b[5][5], a[5][5] = {
+		{ 15, 8, 1, 24, 17 },
+		{ 16, 14, 7, 5, 23 },
+		{ 22, 20, 13, 6, 4 },
+		{ 3, 21, 19, 12, 10 },
+		{ 9, 2, 25, 18, 11 }
+	};
+
+	magic_square_create((int *)b, 5);
+
+	CU_ASSERT_PTR_DATA_EQUAL((void *)a, (void *)b, 5*5*sizeof(int));
+
+	CU_ASSERT_EQUAL(1, magic_square_check((int*)b, 5));
+
+}
+
+static void magic_square_create_test1(void)
+{
+	int a[15][15];
+
+	magic_square_create((int *)a, 15);
+
+	CU_ASSERT_EQUAL(1, magic_square_check((int*)a, 15));
+
+}
 /***********************************************************************************
 ***********************************************************************************/
 CU_TestInfo tests_datasture_charpter02[] = {
@@ -239,5 +280,8 @@ CU_TestInfo tests_datasture_charpter02[] = {
 	{ "sparematrix_transpose_test", sparematrix_transpose_test },
 	{ "sparematrix_fast_transpose_test", sparematrix_fast_transpose_test },
 	{ "sparematrix_mult_test", sparematrix_mult_test },
+	{ "magic_square_check_test", magic_square_check_test },
+	{ "magic_square_create_test0", magic_square_create_test0 },
+	{ "magic_square_create_test1", magic_square_create_test1 },
 	CU_TEST_INFO_NULL,
 };
