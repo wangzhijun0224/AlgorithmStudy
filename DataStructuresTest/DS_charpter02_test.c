@@ -157,6 +157,76 @@ static void sparematrix_transpose_test(void)
 	CU_ASSERT_PTR_DATA_EQUAL(b, c, 8 * sizeof(sparematrixitem));
 }
 
+static void sparematrix_fast_transpose_test(void)
+{
+
+	sparematrixitem a[9] = {
+		{ 6, 6, 8 },
+		{ 0, 0, 15 },
+		{ 0, 3, 22 },
+		{ 0, 5, -15 },
+		{ 1, 1, 11 },
+		{ 1, 2, 3 },
+		{ 2, 3, -6 },
+		{ 4, 0, 91 },
+		{ 5, 2, 28 },
+	};
+
+	sparematrixitem b[9] = {
+		{ 6, 6, 8 },
+		{ 0, 0, 15 },
+		{ 0, 4, 91 },
+		{ 1, 1, 11 },
+		{ 2, 1, 3 },
+		{ 2, 5, 28 },
+		{ 3, 0, 22 },
+		{ 3, 2, -6 },
+		{ 5, 0, -15 },
+	};
+
+	sparematrixitem c[9];
+
+	sparematrix_transpose(a, c);
+
+	CU_ASSERT_PTR_DATA_EQUAL(b, c, 8 * sizeof(sparematrixitem));
+}
+
+static void sparematrix_mult_test(void)
+{
+	// 注意,a必须至少比实际要求的多一项
+	sparematrixitem a[5] = {
+		{3, 3, 3},
+		{0, 0, 1},
+		{1, 0, 1},
+		{2, 0, 1}
+	};
+
+	sparematrixitem b[4] = {
+		{ 3, 3, 3 },
+		{ 0, 0, 1 },
+		{ 0, 1, 1 },
+		{ 0, 2, 1 }
+	};
+
+	sparematrixitem c[10] = {
+		{ 3, 3, 9 },
+		{ 0, 0, 1 },
+		{ 0, 1, 1 },
+		{ 0, 2, 1 },
+		{ 1, 0, 1 },
+		{ 1, 1, 1 },
+		{ 1, 2, 1 },
+		{ 2, 0, 1 },
+		{ 2, 1, 1 },
+		{ 2, 2, 1 },
+	};
+
+	sparematrixitem d[10];
+
+	sparematrix_mult(a, b, d);
+
+	CU_ASSERT_PTR_DATA_EQUAL(c, d, sizeof(c));
+}
 /***********************************************************************************
 ***********************************************************************************/
 CU_TestInfo tests_datasture_charpter02[] = {
@@ -167,5 +237,7 @@ CU_TestInfo tests_datasture_charpter02[] = {
 	{ "sparematrix_set_test", sparematrix_set_test },
 	{ "sparematrix_additem_test", sparematrix_additem_test },
 	{ "sparematrix_transpose_test", sparematrix_transpose_test },
+	{ "sparematrix_fast_transpose_test", sparematrix_fast_transpose_test },
+	{ "sparematrix_mult_test", sparematrix_mult_test },
 	CU_TEST_INFO_NULL,
 };
