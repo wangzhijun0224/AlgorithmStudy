@@ -22,6 +22,9 @@
     <ClCompile Include="DS_charpter02_test.c">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="DS_charpter03_test.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DS_test.h">
@@ -31,6 +34,9 @@
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="DS_charpter02_test.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="DS_charpter03_test.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>

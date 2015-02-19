@@ -13,10 +13,12 @@
   <ItemGroup>
     <ClInclude Include="headers\DS_charpter01.h" />
     <ClInclude Include="headers\DS_charpter02.h" />
+    <ClInclude Include="headers\DS_charpter03.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="sources\DS_charpter01.c" />
     <ClCompile Include="sources\DS_charpter02.c" />
+    <ClCompile Include="sources\DS_charpter03.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{42128F7D-034E-4167-82A0-C7DCE7142B40}</ProjectGuid>

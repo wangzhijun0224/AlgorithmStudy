@@ -15,12 +15,18 @@
     <ClInclude Include="headers\DS_charpter02.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="headers\DS_charpter03.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="sources\DS_charpter01.c">
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="sources\DS_charpter02.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\DS_charpter03.c">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>
