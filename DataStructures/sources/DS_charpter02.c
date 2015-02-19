@@ -449,3 +449,71 @@ int magic_square_check(int *square, int n)
 	return 1;
 
 }
+
+/***********************************************************************************
+KMP模式匹配算法：
+	当发生失配时，期望根据模式中字符和失配在模式中出现的位置，来确定继续进行搜索的位置。
+	失配函数：
+		令p=p0p1....pn是一个模式，则其失配函数f定义为：
+		f(j) = i为满足i<j且使得p0p1...pi=pj-ipj-i+1...pj的最大整数 如果i>= 0， 否则
+			   -1 
+	失配函数的另一种表达形式：
+		f(j) = -1         如果j=0
+			   fm(j-1)+1  其中m是满足登上pfk(j-1)+1=pj的最小整数k
+			   -1		  如果没有满足上式的k值
+***********************************************************************************/
+static void str_fail(char *pat, char* failure)
+{
+	int n = strlen(pat);
+
+	failure[0] = -1;
+	for (int j = 1; j < n; j++)
+	{
+		int i = failure[j - 1];
+		while (pat[j] != pat[i + 1] && i >= 0)
+		{
+			i = failure[i];
+		}
+		if (pat[j] == pat[i + 1])
+			failure[j] = i + 1;
+		else
+			failure[j] = -1;
+	}
+}
+
+int str_pmatch(char *string, char *pat)
+{
+	if (NULL == string || NULL == pat)
+	{
+		return -1;
+	}
+
+	int lens = strlen(string);
+	int lenp = strlen(pat);
+
+	char *failure = (char*)malloc(lenp);
+	str_fail(pat, failure);
+
+	int i = 0, j = 0;
+	while (i < lens && j < lenp)
+	{
+		if (string[i] == pat[j])
+		{
+			i++;
+			j++;
+		}
+		else if (j == 0)
+		{
+			i++;
+		}
+		else
+		{
+			j = failure[j - 1] + 1;
+		}
+	}
+
+	free(failure);
+
+	return ((j == lenp) ? (i - lenp) : -1);
+
+}

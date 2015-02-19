@@ -60,4 +60,5 @@ void sparematrix_mult(sparematrixitem a[], sparematrixitem b[], sparematrixitem 
 
 int magic_square_check(int *square, int n);		// 魔方矩阵判断函数，若是魔方矩阵,则返回1,否则返回0
 void magic_square_create(int *square, int n);	// 魔方矩阵生成函数
+int str_pmatch(char *string, char *pat);		// kmp模式匹配算法
 #endif

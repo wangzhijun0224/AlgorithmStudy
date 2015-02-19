@@ -268,6 +268,38 @@ static void magic_square_create_test1(void)
 	CU_ASSERT_EQUAL(1, magic_square_check((int*)a, 15));
 
 }
+
+static void str_pmatch_test0(void)
+{
+	char *str = "ababbaabaa";
+	char *pat = "aab";
+
+	CU_ASSERT_EQUAL(5, str_pmatch(str, pat));
+}
+
+static void str_pmatch_test1(void)
+{
+	char *str = "ababbaabaa";
+	char *pat = "abab";
+
+	CU_ASSERT_EQUAL(0, str_pmatch(str, pat));
+}
+
+static void str_pmatch_test2(void)
+{
+	char *str = "ababbaabaa";
+	char *pat = "abaa";
+
+	CU_ASSERT_EQUAL(6, str_pmatch(str, pat));
+}
+
+static void str_pmatch_test3(void)
+{
+	char *str = "ababbaabaa";
+	char *pat = "abc";
+
+	CU_ASSERT_EQUAL(-1, str_pmatch(str, pat));
+}
 /***********************************************************************************
 ***********************************************************************************/
 CU_TestInfo tests_datasture_charpter02[] = {
@@ -283,5 +315,9 @@ CU_TestInfo tests_datasture_charpter02[] = {
 	{ "magic_square_check_test", magic_square_check_test },
 	{ "magic_square_create_test0", magic_square_create_test0 },
 	{ "magic_square_create_test1", magic_square_create_test1 },
+	{ "str_pmatch_test0", str_pmatch_test0 },
+	{ "str_pmatch_test1", str_pmatch_test1 },
+	{ "str_pmatch_test2", str_pmatch_test2 },
+	{ "str_pmatch_test3", str_pmatch_test3 },
 	CU_TEST_INFO_NULL,
 };
