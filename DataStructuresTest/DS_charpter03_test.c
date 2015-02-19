@@ -28,9 +28,36 @@ void stack_test(void)
 	stack_close(stk);
 }
 
+void queue_test(void)
+{
+	queue *q = queue_open(10);
+	queue_elements item;
+
+	if (NULL == q) return;
+
+	CU_ASSERT_EQUAL(1, q->empty(q));
+
+	for (int i = 0; i < 10; ++i)
+	{
+		CU_ASSERT_EQUAL(1, q->add(q, i));
+	}
+
+	CU_ASSERT_EQUAL(1, q->full(q));
+
+	for (int i = 0; i < 10; ++i)
+	{
+		CU_ASSERT_EQUAL(1, q->del(q, &item));
+		CU_ASSERT_EQUAL(i, item);
+	}
+	CU_ASSERT_EQUAL(1, q->empty(q));
+
+	queue_close(q);
+}
+
 /***********************************************************************************
 ***********************************************************************************/
 CU_TestInfo tests_datasture_charpter03[] = {
 	{ "stack_test", stack_test },
+	{ "queue_test", queue_test },
 	CU_TEST_INFO_NULL,
 };
