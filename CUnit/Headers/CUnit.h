@@ -168,6 +168,13 @@
   { CU_assertImplementation(((actual) == (expected)), __LINE__, ("CU_ASSERT_EQUAL(" #actual "," #expected ")"), __FILE__, "", CU_FALSE); }
 
 /** Asserts that actual == expected.
+*  Reports failure with no other action.
+*/
+#define CU_ASSERT_LARGER(actual, expected) \
+  { CU_assertImplementation(((actual) > (expected)), __LINE__, ("CU_ASSERT_LARGER(" #actual "," #expected ")"), __FILE__, "", CU_FALSE); }
+
+
+/** Asserts that actual == expected.
  *  Reports failure and causes test to abort.
  */
 #define CU_ASSERT_EQUAL_FATAL(actual, expected) \

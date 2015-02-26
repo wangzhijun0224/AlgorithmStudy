@@ -1,6 +1,8 @@
 #include "DS_charpter03.h"
 
 #include <stdlib.h>
+#include <string.h>
+#include <math.h>
 
 static int stack_full(void *handle)
 {
@@ -26,7 +28,7 @@ static int stack_empty(void *handle)
 	return 0;
 }
 
-static int stack_add(void *handle, stack_elements item)
+static int stack_add(void *handle, void* pitem)
 {
 	stack* stk = (stack*)handle;
 
@@ -35,12 +37,15 @@ static int stack_add(void *handle, stack_elements item)
 		return 0;
 	}
 
-	stk->_stack[++stk->_top] = item;
+	++stk->_top;
+	char *dst = (char *)stk->_stack;
+	dst += stk->_top * stk->_element_size;
+	memcpy(dst, pitem, stk->_element_size);
 
 	return 1;
 }
 
-static int stack_del(void *handle, stack_elements *pitem)
+static int stack_del(void *handle, void *pitem)
 {
 	stack* stk = (stack*)handle;
 
@@ -49,22 +54,29 @@ static int stack_del(void *handle, stack_elements *pitem)
 		return 0;
 	}
 
-	*pitem = stk->_stack[stk->_top--];
+	char *src = (char *)stk->_stack;
+	src += stk->_top * stk->_element_size;
+	memcpy(pitem, src, stk->_element_size);
+	stk->_top--;
 
 	return 1;
 }
 /***********************************************************************************
 ***********************************************************************************/
-stack* stack_open(int stk_size)
+stack* stack_open(int stk_size, int element_size)
 {
-	stack* stk = (stack*)malloc(sizeof(stack));
+	stack* stk = NULL;
+
+	if (element_size < 1)	return stk;
+
+	 stk = (stack*)malloc(sizeof(stack));
 	if (NULL == stk)
 	{
 		return stk;
 	}
 
 	stk->_stk_size = (stk_size <= 0 ? DEFAULT_STACK_SIZE : stk_size);
-	stk->_stack = (stack_elements *)malloc(stk->_stk_size * sizeof(stack_elements));
+	stk->_stack = malloc(stk->_stk_size * element_size);
 	if (NULL == stk->_stack)
 	{
 		free(stk);
@@ -72,7 +84,7 @@ stack* stack_open(int stk_size)
 	}
 
 	stk->_top = -1;
-
+	stk->_element_size = element_size;
 	stk->full	= stack_full;
 	stk->empty	= stack_empty;
 	stk->add	= stack_add;
@@ -89,25 +101,6 @@ void stack_close(stack* stk)
 
 
 /******************************************************************************************************/
-#if 0
-typedef int	queue_elements;
-
-#define DEAFULT_QUEUE_SIZE	100
-
-typedef struct
-{
-	int _rear, _front;
-	queue_elements *_queue;
-
-	
-	int(*empty)(queue* handle);
-	int(*add)(queue* handle, queue_elements item);
-	int(*del)(queue* handle, queue_elements *pitem);
-}queue;
-
-void queue_close(queue* handle);
-#endif
-
 int queue_full(void* handle)
 {
 	queue *q = (queue*)handle;
@@ -189,4 +182,208 @@ void queue_close(queue* handle)
 {
 	free(handle->_queue);
 	free(handle);
+}
+
+/***********************************************************************************
+	栈的应用: 迷宫搜索算法
+***********************************************************************************/
+typedef struct
+{
+	signed char y;
+	signed char x;
+}offsets;
+
+typedef struct
+{
+	unsigned int x, y, dir;
+}elements;
+
+/***********************************************************************************
+	maze:			迷宫，值为0表示联通，值为1表示阻断;
+	col,row:		迷宫的行数和列数
+	startx,starty:	迷宫的开始位置
+	endx,endy:		要到达的迷宫位置
+	path:			输出参数，找到的移动路径
+	返回值: -1：搜索失败(有参数错误或者系统无内存);
+			0:	未搜索到有效路径;
+			path_len:	搜索到的有效路径长度;
+	***********************************************************************************/
+int maze_search(unsigned char *maze, int col, int row,
+	int startx, int starty, int endx, int endy, unsigned int *path)
+{
+	if (NULL == maze || col < 1 || row < 1
+		|| (startx < 0 || startx >= col) || (starty < 0 || starty >= row)
+		|| (endx < 0 || endx >= row) || (endy < 0 || endy >= col)
+		|| NULL == path)
+	{
+		return -1;
+	}
+
+	if (0 != maze[starty*row + startx] || 0 != maze[endy*row + endx])
+	{
+		return -1;
+	}
+
+	// 8个移动方向,依次对应方向(dir)为: 0, 1, 2, 3, 4, 5, 6, 7
+	offsets move[8] = { 
+		{ -1, 0 }, { -1, 1 }, { 0, 1 }, { 1, 1 },
+		{ 1, 0 }, { 1, -1 }, { 0, -1 }, { -1, -1 }
+	};
+
+	// 1. 迷宫扩展:在迷宫的边缘全加上墙，以简化边缘上的迷宫移动方向检查
+	int col2 = col + 2, row2 = row + 2;
+	unsigned char *maze2 = (unsigned char *)malloc(col2*row2*sizeof(unsigned char));
+	if (NULL == maze2)	return -1;
+	unsigned char *src = maze, *dst = maze2;
+	memset(dst, 1, row2);
+	dst += row2;
+
+	for (int i = 0; i < col; ++i)
+	{
+		*dst++ = 1;
+		for (int j = 0; j < row; ++j)
+		{
+			*dst++ = *src++;
+		}
+		*dst++ = 1;
+	}
+	memset(dst, 1, row2);
+
+	// mark数组，用于记录已经检查过的迷宫位置
+	unsigned char *mark = (unsigned char *)malloc(col2*row2*sizeof(unsigned char));
+	if (NULL == mark)
+	{
+		free(maze2);
+		return -1;
+	}
+	memset(mark, 0, col2*row2*sizeof(unsigned char));
+
+
+	// 迷宫搜索
+	stack *stk = stack_open(col2*row2, sizeof(elements));
+	if (NULL == stk)	return -1;
+	startx++, starty++, endx++, endy++;	// 由于迷宫扩展，因此坐标都要加1
+	elements pos;
+	pos.dir = 0, pos.x = startx, pos.y = starty;
+	mark[pos.y*row2 + pos.x] = 1;
+	stk->add(stk, &pos);
+	int found = 0;	// 0:未找到合适的路径, 1:已经找到合适的路径
+	int x, y, dir;
+	int nextx, nexty;
+	while (0 == stk->empty(stk) && 0 == found)
+	{
+		stk->del(stk, &pos);
+		x = pos.x, y = pos.y, dir = pos.dir;
+		while (dir < 8 && 0 == found)
+		{
+			// 移动到下一个方向
+			nextx = x + move[dir].x;
+			nexty = y + move[dir].y;
+			if (nextx == endx && nexty == endy)
+			{
+				// 查找到时将当前节点以及最终节点压栈
+				pos.x = x, pos.y = y, pos.dir;
+				stk->add(stk, &pos);
+				pos.x = nextx, pos.y = nexty;
+				stk->add(stk, &pos);
+				found = 1;
+			}
+			// 连通并且未走过
+			else if (0 == maze2[nexty*row2 + nextx] && 0 == mark[nexty*row2 + nextx])
+			{
+				mark[nexty*row2 + nextx] = 1;
+				pos.x = x, pos.y = y, pos.dir = ++dir; // 当前方向已检查，因此方向要先加1
+				stk->add(stk, &pos);
+				x = nextx, y = nexty, dir = 0;
+			}
+			else
+			{
+				++dir;
+			}
+		}
+
+	}
+
+	unsigned int index1 = 0, index2 = 0, tmp = 0;
+	int path_len;
+	if (1 == found)
+	{
+		while (stk->del(stk, &pos))
+		{
+			path[index1++] = pos.x - 1;
+			path[index1++] = pos.y - 1;
+		}
+
+		path_len = index1;
+
+		// 倒序
+		index1 -= 2;
+		while (index2 < index1)
+		{	
+			tmp = path[index2], path[index2] = path[index1], path[index1] = tmp;
+			tmp = path[index2+1], path[index2+1] = path[index1+1], path[index1+1] = tmp;
+			index2 += 2, index1 -= 2;
+		}
+
+	}
+	stack_close(stk);
+	free(maze2);
+	free(mark);
+
+	if (1 == found)
+	{
+		return path_len;
+	}
+	
+	return 0;
+}
+
+/*
+	迷宫搜索检查函数: 用于检查path中的路径是否为有效
+*/
+int maze_search_check(unsigned char *maze, int col, int row,
+	int startx, int starty, int endx, int endy, unsigned int *path, int path_len)
+{
+	int index, x, y, nextx, nexty;
+
+	// 参数检查
+	if (NULL == maze || col < 1 || row < 1
+		|| (startx < 0 || startx >= col) || (starty < 0 || starty >= row)
+		|| (endx < 0 || endx >= row) || (endy < 0 || endy >= col)
+		|| NULL == path || path_len < 4)
+	{
+		return 0;
+	}
+	
+	// 出口检查
+	index = path_len - 2;
+	x = path[index], y = path[index+1];
+	if (x != endx || y != endy)
+	{
+		return 0;
+	}
+	// 入口检查
+	index = 0;
+	x = path[index], y = path[index+1];
+	if (x != startx || y != starty
+		|| 0 != maze[y*row + x])
+	{
+		return 0;
+	}
+	// 路径检查
+	index += 2;
+	while (index < path_len)
+	{
+		nextx = path[index], nexty = path[index + 1];
+		if (0 != maze[nexty*row + nextx]
+			|| abs(x-nextx) > 1 || abs(y-nexty) > 1)
+		{
+			return 0;
+		}
+
+		x = nextx, y = nexty;
+		index += 2;
+	}
+
+	return 1;
 }
