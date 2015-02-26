@@ -48,4 +48,10 @@ int maze_search(unsigned char *maze, int col, int row,
 	int startx, int starty, int endx, int endy, unsigned int *path);
 int maze_search_check(unsigned char *maze, int col, int row,
 	int startx, int starty, int endx, int endy, unsigned int *path, int path_len);
+
+/***********************************************************************************
+中缀转后缀表达式及后缀表达式求值
+***********************************************************************************/
+int postfix_expr_eval(const char* postfix_expr, int *pvalue);
+int middlefix_to_postfix(const char* middlefix_expr, char* postfix_expr);
 #endif

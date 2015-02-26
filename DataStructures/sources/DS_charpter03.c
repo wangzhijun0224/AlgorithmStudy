@@ -387,3 +387,179 @@ int maze_search_check(unsigned char *maze, int col, int row,
 
 	return 1;
 }
+
+/***********************************************************************************
+栈的应用: 后缀表达式求值
+***********************************************************************************/
+// 左括号，右括号，加，减，乘，除，求余，操作数
+typedef enum{lparen, rparen, plus, minus, times, divide, mod, eos, operand}en_precedence;
+
+// 获取一个词元,各词元间必须以' '隔开
+static en_precedence get_token(const char* expr, int *location, char** symbol)
+{
+	static char words[100] = { 0 };
+	int index = 1;
+	en_precedence ret;
+	
+	words[0] = expr[(*location)++];
+	switch (words[0])
+	{
+		case '(': 	ret = lparen;	break;
+		case ')':  	ret = rparen;	break;
+		case '+': 	ret = plus;		break;
+		case '-': 	ret = minus;	break;
+		case '*': 	ret = times;	break;
+		case '/': 	ret = divide;	break;
+		case '%': 	ret = mod;		break;
+		case '\0': 	ret = eos;		break;
+		default:	ret = operand;	break;	// 默认为操作数,无错误检查
+	}
+	if (eos != ret)
+	{
+		while ((words[index++] = expr[(*location)++]) != ' ')
+			;
+	}
+	
+	while (' ' == expr[(*location)])	// 过滤掉多余的空格
+	{
+		(*location)++;
+	}
+
+	words[index] = '\0';
+	*symbol = words;
+
+	return ret;
+}
+
+/* 
+	后缀表达式求值: (仅支持'+''-' '*' '/' '%'操作,要求每个词元之间以' '隔开)
+		返回值: 1表示成功，0表示失败
+*/
+int postfix_expr_eval(const char* postfix_expr, int *pvalue)
+{
+	if (NULL == postfix_expr || NULL == pvalue)
+	{
+		return 0;
+	}
+
+	stack *stk = stack_open(100, sizeof(int));
+	if (NULL == stk)
+	{
+		return 0;
+	}
+
+	int op1, op2;
+	int symbol;
+	char* chsymbol;
+	en_precedence token;
+	int index = 0;
+
+	token = get_token(postfix_expr, &index, &chsymbol);
+	while (eos != token)
+	{
+		if (operand == token)
+		{
+			symbol = atoi(chsymbol);
+			stk->add(stk, &symbol);
+		}
+		else
+		{
+			stk->del(stk, &op2);
+			stk->del(stk, &op1);
+			switch (token)
+			{
+			case plus:		symbol = op1 + op2;	break;
+			case minus:		symbol = op1 - op2;	break;
+			case times:		symbol = op1 * op2;	break;
+			case divide:	symbol = op1 / op2;	break;
+			case mod:		symbol = op1 % op2;	break;
+			}
+			stk->add(stk, &symbol);
+		}
+		token = get_token(postfix_expr, &index, &chsymbol);
+	}
+
+	stk->del(stk, pvalue);
+
+	stack_close(stk);
+	return 1;
+}
+
+/*
+	中缀表达式转后缀表达式:
+	运算符入栈和出栈基于运算符优先级。每当在表达式中遇到左括号，就将其入栈，直到遇到
+	相应的右括号时，才将其出栈(左括号在栈中时，表现为一个低优先级的运算符，而不在栈中
+	时，是一个高优先级的运算符)。因此，有两种优先级：栈内优先级(isp)和引入优先级(icp)。
+		返回值: 1表示成功，0表示失败
+*/
+int middlefix_to_postfix(const char* middlefix_expr, char* postfix_expr)
+{
+	// 栈内优先级和引入优先级，依次是en_precedence的优先级
+	static const int isp[] = {0, 19, 12, 12, 13, 13, 13, 0};
+	static const int icp[] = {20, 19, 12, 12, 13, 13, 13, 0};
+	static const char* token_str[] = {
+		"( ", ") ", "+ ", "- ", "* ", "/ ", "% ", "", ""
+	};
+
+	if (NULL == middlefix_expr || NULL == postfix_expr)
+	{
+		return 0;
+	}
+
+	
+
+	stack *stk = stack_open(100, sizeof(int));
+	if (NULL == stk)
+	{
+		return 0;
+	}
+
+	char* chsymbol;
+	en_precedence token, token2;
+	int index = 0, postfix_index = 0;
+	
+	token = eos;
+	stk->add(stk, &token);
+
+	for (token = get_token(middlefix_expr, &index, &chsymbol);
+		token != eos; 
+		token = get_token(middlefix_expr, &index, &chsymbol))
+	{
+		if (operand == token)
+		{
+			strcpy(&postfix_expr[postfix_index], chsymbol);	
+			postfix_index += strlen(chsymbol);
+		}
+		else if (rparen == token)
+		{
+			for (stk->del(stk, &token2); token2 != lparen; stk->del(stk, &token2))
+			{
+				strcpy(&postfix_expr[postfix_index], token_str[token2]);	
+				postfix_index += strlen(token_str[token2]);	
+			}
+		}
+		else
+		{
+			for (stk->del(stk, &token2); isp[token2] >= icp[token]; stk->del(stk, &token2))
+			{
+				strcpy(&postfix_expr[postfix_index], token_str[token2]);	
+				postfix_index += strlen(token_str[token2]);	
+			}
+			stk->add(stk, &token2);	// 归还获取的小于当前token的运算符
+			stk->add(stk, &token);
+		}
+	}
+
+	for (stk->del(stk, &token2); token2 != eos; stk->del(stk, &token2))
+	{
+		strcpy(&postfix_expr[postfix_index], token_str[token2]);	
+		postfix_index += strlen(token_str[token2]);	
+	}
+
+	postfix_expr[postfix_index] = '\0';
+	
+	stack_close(stk);
+
+	return 1;
+
+}
