@@ -1,6 +1,7 @@
 #include "DS_charpter03_test.h"
 
 #include "DS_charpter03.h"
+#include "os_private.h"
 
 void stack_test(void)
 {

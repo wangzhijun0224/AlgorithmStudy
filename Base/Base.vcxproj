@@ -11,12 +11,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{42D39F67-69CE-4CD5-953B-99F9F5E0DF54}</ProjectGuid>
-    <RootNamespace>DataStructuresTest</RootNamespace>
+    <ProjectGuid>{75D63582-81F9-4196-BDE7-0D3DFF593254}</ProjectGuid>
+    <RootNamespace>Base</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
@@ -41,20 +41,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>..\out\</OutDir>
     <IntDir>.\Temp\</IntDir>
+    <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\Base\headers;..\CUnit\Headers;..\DataStructures\headers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalOptions>/D_CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>..\out\CUnit.lib;..\out\DataStructures.lib;..\out\Base.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <Lib>
+      <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -71,17 +73,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="DS_charpter01_test.c" />
-    <ClCompile Include="DS_charpter02_test.c" />
-    <ClCompile Include="DS_charpter03_test.c" />
-    <ClCompile Include="DS_test.c" />
-    <ClCompile Include="main.c" />
+    <ClInclude Include="headers\os_private.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DS_charpter01_test.h" />
-    <ClInclude Include="DS_charpter02_test.h" />
-    <ClInclude Include="DS_charpter03_test.h" />
-    <ClInclude Include="DS_test.h" />
+    <ClCompile Include="sources\os_private.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

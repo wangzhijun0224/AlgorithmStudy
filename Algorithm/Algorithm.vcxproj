@@ -71,9 +71,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="headers\AL_charpter01.h" />
+    <ClInclude Include="headers\AL_charpter03.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="sources\AL_charpter01.c" />
+    <ClCompile Include="sources\AL_charpter03.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

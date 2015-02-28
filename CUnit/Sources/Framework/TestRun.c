@@ -807,10 +807,6 @@ CU_ErrorCode run_single_test(CU_pTest pTest, CU_pRunSummary pRunSummary)
   CU_set_error(CUE_SUCCESS);
   f_pCurTest = pTest;
 
-  if (NULL != f_pTestStartMessageHandler) {
-    (*f_pTestStartMessageHandler)(f_pCurTest, f_pCurSuite);
-  }
-
   /* set jmp_buf and run test */
   pTest->pJumpBuf = &buf;
   if (0 == setjmp(buf)) {
@@ -833,6 +829,10 @@ CU_ErrorCode run_single_test(CU_pTest pTest, CU_pRunSummary pRunSummary)
   }
   else {
     pLastFailure = NULL;                   /* no additional failure - set to NULL */
+  }
+
+  if (NULL != f_pTestStartMessageHandler) {
+	  (*f_pTestStartMessageHandler)(f_pCurTest, f_pCurSuite);
   }
 
   if (NULL != f_pTestCompleteMessageHandler) {

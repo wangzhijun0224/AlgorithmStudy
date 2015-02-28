@@ -6,22 +6,17 @@
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
     <Filter Include="Sources">
-      <UniqueIdentifier>{4a259504-683a-466f-9ccf-e478acb90bea}</UniqueIdentifier>
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="headers\AL_charpter01.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="headers\AL_charpter03.h">
+    <ClInclude Include="headers\os_private.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="sources\AL_charpter01.c">
-      <Filter>Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\AL_charpter03.c">
+    <ClCompile Include="sources\os_private.c">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>

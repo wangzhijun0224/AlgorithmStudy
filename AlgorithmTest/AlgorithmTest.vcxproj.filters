@@ -19,12 +19,18 @@
     <ClCompile Include="AL_charpter01_test.c">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="AL_charpter03_test.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AL_test.h">
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="AL_charpter01_test.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="AL_charpter03_test.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>

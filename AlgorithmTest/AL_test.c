@@ -5,9 +5,11 @@
 #include "CUnit.h"
 
 #include "AL_charpter01_test.h"
+#include "AL_charpter03_test.h"
 
 static CU_SuiteInfo suites[] = {
 	{ "suit_datasture01", NULL, NULL, tests_algorithm_charpter01 },
+	{ "suit_datasture02", NULL, NULL, tests_algorithm_charpter03 },
 	CU_SUITE_INFO_NULL,
 };
 void AddAlgorithmTests(void)
