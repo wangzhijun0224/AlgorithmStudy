@@ -67,10 +67,49 @@ static void prime_test(void)
 	free(prime2);
 
 }
+
+static void throw_coin_test(void)
+{
+	int n = 32;
+	int rlt[33];
+
+	throw_coin(1000, 32, rlt);
+
+	my_printf("\n");
+	for (int i = 0; i <= 32; i++)
+	{
+		my_printf("%2d ", i);
+		for (int j = 0; j < rlt[i]; j += 3)
+		{
+			my_printf("*");
+		}
+		my_printf("\n");
+	}
+	my_printf("\n");
+}
+
+static void near_point_test(void)
+{
+	my_printf("\n");
+	double d;
+	for (int i = 10; i <= 10000; i *= 10)
+	{
+		d = 0.3;
+		my_printf("n: %8d, d: %f, count: %d\n", i, d, near_point(i, d));
+		d = 0.6;
+		my_printf("n: %8d, d: %f, count: %d\n", i, d, near_point(i, d));
+		d = 0.9;
+		my_printf("n: %8d, d: %f, count: %d\n", i, d, near_point(i, d));
+	}
+	my_printf("\n");
+}
+
 /***********************************************************************************
 ***********************************************************************************/
 CU_TestInfo tests_algorithm_charpter03[] = {
 	{ "loga_test", loga_test },
-	{ "prime_test", prime_test },
+	//{ "prime_test", prime_test },
+	{ "throw_coin_test", throw_coin_test },
+	{ "near_point_test", near_point_test },
 	CU_TEST_INFO_NULL,
 };

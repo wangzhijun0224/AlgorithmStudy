@@ -101,3 +101,84 @@ int get_prime2(int n, int* primearray)
 
 	return cnt;
 }
+
+/****************************************************************
+抛硬币模拟：
+	抛一个硬币N次，期望得到N/2次正面，但从0~N次的每一种情况都可能发生。
+	k次朝上的次数近似为正态分布
+	做抛硬币实验(即抛硬币N次,记录正面朝上的次数)M次,记录i次(0 <= i <=N)
+	正面出现的次数,rlt数组的大小应为n+1
+****************************************************************/
+static int heads()
+{
+	return rand() < RAND_MAX / 2;
+}
+void throw_coin(int m, int n, int* rlt)
+{
+	assert(m > 1);
+	assert(n > 1);
+	assert(NULL != rlt);
+
+	int cnt = 0;
+
+	for (int i = 0; i <= n; i++)
+		rlt[i] = 0;
+
+	for (int i = 0; i < m; i++)
+	{
+		cnt = 0;
+		for (int j = 0; j < n; j++)
+		{
+			if (heads())	cnt++;
+		}
+
+		rlt[cnt]++;
+	}
+}
+
+/****************************************************************
+最近点对的计算：
+	对于N个随机产生的单位正方形中的点,统计可以被长度小于d的直线连接
+    的点的对数。
+复杂度: O(N*N)
+****************************************************************/
+typedef struct{ double x, y; }point;
+static double rand_float(void)
+{
+	return 1.0*rand() / RAND_MAX;
+}
+static double point_distance(point a, point b)
+{
+	double x = a.x - b.x, y = a.y - b.y;
+
+	return x*x + y*y;
+}
+int near_point(int n, double d)
+{
+	assert(n > 1);
+	assert(d > 0 && d < 1.0);
+
+	point *a = (point *)malloc(n * sizeof(point));
+	assert(NULL != a);
+
+	int cnt = 0;
+
+	for (int i = 0; i < n; i++)
+	{
+		a[i].x = rand_float();
+		a[i].y = rand_float();
+	}
+
+	d = d*d;
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = i + 1; j < n; j++)
+		{
+			if (point_distance(a[i], a[j]) < d)	cnt++;
+		}
+	}
+
+	free(a);
+
+	return cnt;
+}
