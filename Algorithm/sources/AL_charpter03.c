@@ -136,45 +136,157 @@ void throw_coin(int m, int n, int* rlt)
 	}
 }
 
+/************************************** begin ***********************************************/
+/***************************************************************
+约瑟夫环问题：
+	n个人围成一圈，从1编号到n，沿着这个圈每次数M个人就排除对应者,
+    每当有人出列后，剩下的人靠拢，仍然保持一个完整的圆周，找出最后
+    剩下的人
+****************************************************************/
+int josephus_circle(int n, int m)
+{
+	assert(n>1);
+	assert(m >= 1);
+
+	link head;
+
+	head = (link)malloc(n*sizeof(*head));
+	assert(head != NULL);
+
+	for (int i = 0; i < n; i++)
+	{
+		head[i].item = i + 1;
+		head[i].next = &head[i + 1];
+	}
+	head[n - 1].next = &head[0];
+
+	link x = &head[n - 1];
+	while (x != x->next)
+	{
+		for (int i = 1; i < m; i++)
+		{
+			x = x->next;
+		}
+
+		x->next = x->next->next;
+	}
+
+	int rlt = x->item;
+
+	free(head);
+
+	return rlt;
+}
+
+/***************************************************************
+约瑟夫环问题：
+	用索引模拟链表
+****************************************************************/
+int josephus_circle2(int n, int m)
+{
+	typedef struct _element
+	{
+		int item;
+		int next;
+	}josephus_element;
+
+	assert(n>1);
+	assert(m >= 1);
+
+	josephus_element *head;
+
+	head = (josephus_element *)malloc(n*sizeof(josephus_element));
+	assert(head != NULL);
+
+	for (int i = 0; i < n; i++)
+	{
+		head[i].item = i + 1;
+		head[i].next = i + 1;
+	}
+	head[n - 1].next = 0;
+
+	int x = n - 1;
+	while (x != head[x].next)
+	{
+		for (int i = 1; i < m; i++)
+		{
+			x = head[x].next;
+		}
+		head[x].next = head[(head[x].next)].next;
+	}
+
+	int rlt = head[x].item;
+
+	free(head);
+
+	return rlt;
+}
+/************************************** end ***********************************************/
+
 /****************************************************************
-最近点对的计算：
-	对于N个随机产生的单位正方形中的点,统计可以被长度小于d的直线连接
-    的点的对数。
-复杂度: O(N*N)
+单链表倒置
+****************************************************************/
+link list_reverse(link x)
+{
+	assert(NULL != x);
+
+	link t, y = x, r = NULL;
+
+	while (y != NULL)
+	{
+		t = y->next;
+		y->next = r;
+		r = y;
+		y = t;
+	}
+
+	return r;
+}
+
+
+/************************************** begin ***********************************************/
+/****************************************************************
+邻近点对问题：
+对于N个随机产生的单位正方形中的点,统计可以被长度小于d的直线连接
+的点的对数。
 ****************************************************************/
 typedef struct{ double x, y; }point;
-static double rand_float(void)
-{
-	return 1.0*rand() / RAND_MAX;
-}
+
 static double point_distance(point a, point b)
 {
 	double x = a.x - b.x, y = a.y - b.y;
 
 	return x*x + y*y;
 }
-int near_point(int n, double d)
+
+/****************************************************************
+方案一：
+复杂度: O(N*N)
+****************************************************************/
+int near_point2(int n, double d, double *randdata)
 {
 	assert(n > 1);
 	assert(d > 0 && d < 1.0);
+	assert(randdata != NULL);
 
 	point *a = (point *)malloc(n * sizeof(point));
 	assert(NULL != a);
 
 	int cnt = 0;
+	int index = 0;
 
 	for (int i = 0; i < n; i++)
 	{
-		a[i].x = rand_float();
-		a[i].y = rand_float();
+		a[i].x = randdata[index++];
+		a[i].y = randdata[index++];
 	}
 
-	d = d*d;
+	double d2 = d*d;
 	for (int i = 0; i < n; i++)
 	{
 		for (int j = i + 1; j < n; j++)
 		{
-			if (point_distance(a[i], a[j]) < d)	cnt++;
+			if (point_distance(a[i], a[j]) < d2)	cnt++;
 		}
 	}
 
@@ -182,3 +294,107 @@ int near_point(int n, double d)
 
 	return cnt;
 }
+
+typedef struct _node* _link;
+struct _node{ point p; _link next; };
+/****************************************************************
+二维数组的申请：
+	注意此种方法，用此方法可以在代码中使用类似a[i][j]的表达式
+****************************************************************/
+static _link** malloc2d(int m, int n)
+{
+	_link** t = (_link**)malloc(m * sizeof(*t));
+	assert(t != NULL);
+
+	for (int i = 0; i < m; i++)
+	{
+		t[i] = (_link *)malloc(n * sizeof(*(t[i])));
+		assert(t[i] != NULL);
+	}
+
+	return t;
+}
+
+static void free2d(_link** t, int n)
+{
+	for (int i = 0; i < n; i++)
+	{
+		free(t[i]);
+	}
+
+	free(t);
+}
+
+/****************************************************************
+将点放入网格中:
+	针对这个应用，可以将统计邻近点的动作也放入此函数中
+****************************************************************/
+static void grid_insert(_link** grid, _link node, int factor, int *cnt, double d)
+{
+	int X = (int)(node->p.x * factor) + 1;
+	int Y = (int)(node->p.y * factor) + 1;
+
+	// 当x或者y为1.0时,应该减1
+	if (X == factor + 1)    X -= 1;
+	if (Y == factor + 1)    Y -= 1;
+
+	for (int i = X - 1; i <= X + 1; i++)
+	{
+		for (int j = Y - 1; j <= Y + 1; j++)
+		{
+			for (_link s = grid[i][j]; s != NULL; s = s->next)
+			{
+				if (point_distance(node->p, s->p) < d) (*cnt)++;
+			}
+		}
+	}
+
+	node->next = grid[X][Y];
+	grid[X][Y] = node;
+}
+
+/****************************************************************
+将单位正方形划分为大小相等的叫嚣的正方形网格。然后对每个正方形网格，
+为所有其中的点生成一个链表。通过二维素族，可以立即访问已知点附近的
+点集合。
+空间复杂度： O(1/d*d + N)
+时间复杂度： O(d*d*N*N) 对于小的d值,本算法执行很快
+****************************************************************/
+int near_point(int n, double d, double *randdata)
+{
+
+	int G = (int)(1 / d);
+
+	// 生成网格
+	_link** grid = malloc2d(G + 2, G + 2); // 周边加哨兵
+
+	for (int i = 0; i < G + 2; i++)
+	{
+		for (int j = 0; j < G + 2; j++)
+		{
+			grid[i][j] = NULL;
+		}
+	}
+
+	_link head = (_link)malloc(n*sizeof(*head));
+	assert(head != NULL);
+
+	double d2 = d*d;
+	int cnt = 0;
+
+	// 撒点(并计算)
+	int index = 0;
+	for (int i = 0; i < n; i++)
+	{
+		head[i].p.x = randdata[index++];
+		head[i].p.y = randdata[index++];
+
+		grid_insert(grid, &head[i], G, &cnt, d2);	
+	}
+
+	free(head);
+	free2d(grid, G + 2);
+
+	return cnt;
+}
+/************************************** begin ***********************************************/

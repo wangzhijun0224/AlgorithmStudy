@@ -88,28 +88,112 @@ static void throw_coin_test(void)
 	my_printf("\n");
 }
 
-static void near_point_test(void)
+static void josephus_circle_test(void)
 {
-	my_printf("\n");
-	double d;
-	for (int i = 10; i <= 10000; i *= 10)
+	CU_ASSERT_EQUAL(josephus_circle(4, 2), josephus_circle2(4, 2));
+	CU_ASSERT_EQUAL(josephus_circle(9, 5), josephus_circle2(9, 5));
+	CU_ASSERT_EQUAL(josephus_circle(9, 1), josephus_circle2(9, 1));
+}
+
+static void list_reverse_test(void)
+{
+	int n = 100, i;
+	link head = (link)malloc(n*sizeof(*head));
+	assert(NULL != head);
+
+	for (i = 0; i < 100; i++)
 	{
-		d = 0.3;
-		my_printf("n: %8d, d: %f, count: %d\n", i, d, near_point(i, d));
-		d = 0.6;
-		my_printf("n: %8d, d: %f, count: %d\n", i, d, near_point(i, d));
-		d = 0.9;
-		my_printf("n: %8d, d: %f, count: %d\n", i, d, near_point(i, d));
+		head[i].item = i;
+		head[i].next = &head[i + 1];
+	}
+	head[n - 1].next = NULL;
+
+	link reverse_head = list_reverse(head);
+	for (i = 99; reverse_head != NULL; reverse_head = reverse_head->next, i--)
+	{
+		CU_ASSERT_EQUAL(i, reverse_head->item);
+	}
+
+	free(head);
+
+}
+
+// ÕýÈ·ÐÔ²âÊÔ
+static void near_point_test0(void)
+{
+	int cnt1, cnt2;
+
+	for (int i = 10; i <= 1000; i *= 10)
+	{
+		double *randnum = (double *)malloc(2 * i*sizeof(double));
+		assert(randnum != NULL);
+
+		for (int j = 0; j < 2 * i; j++)
+		{
+			randnum[j] = 1.0*rand() / RAND_MAX;
+		}
+
+		double d = 0.1;
+
+		for (int j = 0; j < 3; j++, d = d*0.1)
+		{
+			cnt1 = near_point(i, d, randnum);
+			cnt2 = near_point2(i, d, randnum);
+			CU_ASSERT_EQUAL(cnt1, cnt2);
+		}
+
+		free(randnum);
+	}
+}
+
+static void near_point_test1(void)
+{
+	U64 curtime;
+	int cnt;
+
+	my_printf("\n");
+
+	for (int i = 10; i <= 1000000; i *= 10)
+	{
+		double *randnum = (double *)malloc(2 * i*sizeof(double));
+		assert(randnum != NULL);
+
+		for (int j = 0; j < 2 * i; j++)
+		{
+			randnum[j] = 1.0*rand() / RAND_MAX;
+		}
+
+
+		double d = 0.0001;
+
+		//for (int j = 0; j < 3; j++, d = d*0.1)
+		{
+			my_printf("n:%d, d:%1.5f\n", i, d);
+			curtime = get_systime_ms();
+			cnt = near_point(i, d, randnum);
+			my_printf("near_point: n: %d, d: %f, count: %d, time: %ld\n", i, d, cnt, get_systime_ms() - curtime);
+
+#if 0
+			curtime = get_systime_ms();
+			cnt = near_point2(i, d, randnum);
+			my_printf("near_point2: n: %d, d: %f, count: %d, time: %ld\n", i, d, cnt, get_systime_ms() - curtime);
+			my_printf("\n");
+#endif
+		}
+
+		free(randnum);
 	}
 	my_printf("\n");
 }
-
 /***********************************************************************************
 ***********************************************************************************/
 CU_TestInfo tests_algorithm_charpter03[] = {
 	{ "loga_test", loga_test },
 	//{ "prime_test", prime_test },
-	{ "throw_coin_test", throw_coin_test },
-	{ "near_point_test", near_point_test },
+	//{ "throw_coin_test", throw_coin_test },
+	{ "near_point_test0", near_point_test0 },
+	{ "near_point_test1", near_point_test1 },
+	{ "josephus_circle_test", josephus_circle_test },
+	{ "list_reverse_test", list_reverse_test },
 	CU_TEST_INFO_NULL,
 };
