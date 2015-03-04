@@ -54,4 +54,24 @@ int maze_search_check(unsigned char *maze, int col, int row,
 ***********************************************************************************/
 int postfix_expr_eval(const char* postfix_expr, int *pvalue);
 int middlefix_to_postfix(const char* middlefix_expr, char* postfix_expr);
+
+/***********************************************************************************
+双端队列及用双端队列实现的堆和栈
+***********************************************************************************/
+#define DEFAULT_DEQUEUE_SIZE 100
+typedef struct
+{
+	int _rear, _front, _dequeue_size, _element_size, _cnt;
+	void *_dequeue;
+
+	int(*full)(void* handle);
+	int(*empty)(void * handle);
+	int(*add_front)(void *handle, void* pitem);
+	int(*add_rear)(void *handle, void* pitem);
+	int(*del_front)(void *handle, void* pitem);
+	int(*del_rear)(void *handle, void* pitem);
+}dequeue;
+
+dequeue* dequeue_open(int dequeue_size, int element_size);
+void dequeue_close(dequeue* handle);
 #endif

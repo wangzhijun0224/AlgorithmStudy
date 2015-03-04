@@ -3,7 +3,7 @@
 #include "DS_charpter03.h"
 #include "os_private.h"
 
-void stack_test(void)
+static void stack_test(void)
 {
 	stack *stk = stack_open(10, sizeof(int));
 	int item;
@@ -29,7 +29,7 @@ void stack_test(void)
 	stack_close(stk);
 }
 
-void queue_test(void)
+static void queue_test(void)
 {
 	queue *q = queue_open(10);
 	queue_elements item;
@@ -194,6 +194,114 @@ static void middlefix_to_postfix_test0(void)
 	middlefix_to_postfix(middlefix_expr, postfix_expr);
 	CU_ASSERT_PTR_DATA_EQUAL(postfix_expr, "12 3 40 * + ", sizeof("12 3 40 * + "));
 }
+
+// Í·²åÍ·É¾£¬Õ»
+static void dequeue_test0(void)
+{
+	dequeue *dq = dequeue_open(10, sizeof(int));
+	int item;
+
+	if (NULL == dq) return;
+
+	CU_ASSERT_EQUAL(1, dq->empty(dq));
+
+	for (int i = 0; i < 10; ++i)
+	{
+		CU_ASSERT_EQUAL(1, dq->add_front(dq, &i));
+	}
+
+	CU_ASSERT_EQUAL(1, dq->full(dq));
+
+	for (int i = 0; i < 10; ++i)
+	{
+		CU_ASSERT_EQUAL(1, dq->del_front(dq, &item));
+		CU_ASSERT_EQUAL(9 - i, item);
+	}
+	CU_ASSERT_EQUAL(1, dq->empty(dq));
+
+	dequeue_close(dq);
+}
+
+// Î²²åÎ²É¾£¬Õ»
+static void dequeue_test1(void)
+{
+	dequeue *dq = dequeue_open(10, sizeof(int));
+	int item;
+
+	if (NULL == dq) return;
+
+	CU_ASSERT_EQUAL(1, dq->empty(dq));
+
+	for (int i = 0; i < 10; ++i)
+	{
+		CU_ASSERT_EQUAL(1, dq->add_rear(dq, &i));
+	}
+
+	CU_ASSERT_EQUAL(1, dq->full(dq));
+
+	for (int i = 0; i < 10; ++i)
+	{
+		CU_ASSERT_EQUAL(1, dq->del_rear(dq, &item));
+		CU_ASSERT_EQUAL(9 - i, item);
+	}
+	CU_ASSERT_EQUAL(1, dq->empty(dq));
+
+	dequeue_close(dq);
+}
+
+// Í·²åÎ²É¾£¬¶ÓÁÐ
+static void dequeue_test2(void)
+{
+	dequeue *dq = dequeue_open(10, sizeof(int));
+	int item;
+
+	if (NULL == dq) return;
+
+	CU_ASSERT_EQUAL(1, dq->empty(dq));
+
+	for (int i = 0; i < 10; ++i)
+	{
+		CU_ASSERT_EQUAL(1, dq->add_front(dq, &i));
+	}
+
+	CU_ASSERT_EQUAL(1, dq->full(dq));
+
+	for (int i = 0; i < 10; ++i)
+	{
+		CU_ASSERT_EQUAL(1, dq->del_rear(dq, &item));
+		CU_ASSERT_EQUAL(i, item);
+	}
+	CU_ASSERT_EQUAL(1, dq->empty(dq));
+
+	dequeue_close(dq);
+}
+
+// Î²²åÍ·É¾£¬¶ÓÁÐ
+static void dequeue_test3(void)
+{
+	dequeue *dq = dequeue_open(10, sizeof(int));
+	int item;
+
+	if (NULL == dq) return;
+
+	CU_ASSERT_EQUAL(1, dq->empty(dq));
+
+	for (int i = 0; i < 10; ++i)
+	{
+		CU_ASSERT_EQUAL(1, dq->add_rear(dq, &i));
+	}
+
+	CU_ASSERT_EQUAL(1, dq->full(dq));
+
+	for (int i = 0; i < 10; ++i)
+	{
+		CU_ASSERT_EQUAL(1, dq->del_front(dq, &item));
+		CU_ASSERT_EQUAL(i, item);
+	}
+	CU_ASSERT_EQUAL(1, dq->empty(dq));
+
+	dequeue_close(dq);
+}
 /***********************************************************************************
 ***********************************************************************************/
 CU_TestInfo tests_datasture_charpter03[] = {
@@ -203,5 +311,9 @@ CU_TestInfo tests_datasture_charpter03[] = {
 	{ "maze_search_test2", maze_search_test2 },
 	{ "postfix_expr_eval_test0", postfix_expr_eval_test0 },
 	{ "middlefix_to_postfix_test0", middlefix_to_postfix_test0 },
+	{ "dequeue_test0", dequeue_test0 },
+	{ "dequeue_test1", dequeue_test1 },
+	{ "dequeue_test2", dequeue_test2 },
+	{ "dequeue_test3", dequeue_test3 },
 	CU_TEST_INFO_NULL,
 };

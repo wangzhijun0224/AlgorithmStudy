@@ -1,8 +1,9 @@
-#include "DS_charpter03.h"
+ï»¿#include "DS_charpter03.h"
 
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <assert.h>
 
 static int stack_full(void *handle)
 {
@@ -160,7 +161,7 @@ queue *queue_open(int queue_size)
 		return q;
 	}
 
-	// Ô¼¶¨ÈİÁ¿ÎªsizeµÄ¶ÓÁĞ×î¶à²åÈësize-1¸öÔªËØ,ÕâÑùÒÔ±ãÓÚÇø·Ö¶ÓÁĞÊÇ¿Õ¶ÓÁĞ»¹ÊÇÂú¶ÓÁĞ
+	// çº¦å®šå®¹é‡ä¸ºsizeçš„é˜Ÿåˆ—æœ€å¤šæ’å…¥size-1ä¸ªå…ƒç´ ,è¿™æ ·ä»¥ä¾¿äºåŒºåˆ†é˜Ÿåˆ—æ˜¯ç©ºé˜Ÿåˆ—è¿˜æ˜¯æ»¡é˜Ÿåˆ—
 	q->_queue_size = (queue_size <= 0 ? DEAFULT_QUEUE_SIZE : (queue_size + 1));
 	q->_queue = (queue_elements *)malloc(q->_queue_size * sizeof(queue_elements));
 	if (NULL == q->_queue)
@@ -185,7 +186,7 @@ void queue_close(queue* handle)
 }
 
 /***********************************************************************************
-	Õ»µÄÓ¦ÓÃ: ÃÔ¹¬ËÑË÷Ëã·¨
+	æ ˆçš„åº”ç”¨: è¿·å®«æœç´¢ç®—æ³•
 ***********************************************************************************/
 typedef struct
 {
@@ -199,14 +200,14 @@ typedef struct
 }elements;
 
 /***********************************************************************************
-	maze:			ÃÔ¹¬£¬ÖµÎª0±íÊ¾ÁªÍ¨£¬ÖµÎª1±íÊ¾×è¶Ï;
-	col,row:		ÃÔ¹¬µÄĞĞÊıºÍÁĞÊı
-	startx,starty:	ÃÔ¹¬µÄ¿ªÊ¼Î»ÖÃ
-	endx,endy:		Òªµ½´ïµÄÃÔ¹¬Î»ÖÃ
-	path:			Êä³ö²ÎÊı£¬ÕÒµ½µÄÒÆ¶¯Â·¾¶
-	·µ»ØÖµ: -1£ºËÑË÷Ê§°Ü(ÓĞ²ÎÊı´íÎó»òÕßÏµÍ³ÎŞÄÚ´æ);
-			0:	Î´ËÑË÷µ½ÓĞĞ§Â·¾¶;
-			path_len:	ËÑË÷µ½µÄÓĞĞ§Â·¾¶³¤¶È;
+	maze:			è¿·å®«ï¼Œå€¼ä¸º0è¡¨ç¤ºè”é€šï¼Œå€¼ä¸º1è¡¨ç¤ºé˜»æ–­;
+	col,row:		è¿·å®«çš„è¡Œæ•°å’Œåˆ—æ•°
+	startx,starty:	è¿·å®«çš„å¼€å§‹ä½ç½®
+	endx,endy:		è¦åˆ°è¾¾çš„è¿·å®«ä½ç½®
+	path:			è¾“å‡ºå‚æ•°ï¼Œæ‰¾åˆ°çš„ç§»åŠ¨è·¯å¾„
+	è¿”å›å€¼: -1ï¼šæœç´¢å¤±è´¥(æœ‰å‚æ•°é”™è¯¯æˆ–è€…ç³»ç»Ÿæ— å†…å­˜);
+			0:	æœªæœç´¢åˆ°æœ‰æ•ˆè·¯å¾„;
+			path_len:	æœç´¢åˆ°çš„æœ‰æ•ˆè·¯å¾„é•¿åº¦;
 	***********************************************************************************/
 int maze_search(unsigned char *maze, int col, int row,
 	int startx, int starty, int endx, int endy, unsigned int *path)
@@ -224,13 +225,13 @@ int maze_search(unsigned char *maze, int col, int row,
 		return -1;
 	}
 
-	// 8¸öÒÆ¶¯·½Ïò,ÒÀ´Î¶ÔÓ¦·½Ïò(dir)Îª: 0, 1, 2, 3, 4, 5, 6, 7
+	// 8ä¸ªç§»åŠ¨æ–¹å‘,ä¾æ¬¡å¯¹åº”æ–¹å‘(dir)ä¸º: 0, 1, 2, 3, 4, 5, 6, 7
 	offsets move[8] = { 
 		{ -1, 0 }, { -1, 1 }, { 0, 1 }, { 1, 1 },
 		{ 1, 0 }, { 1, -1 }, { 0, -1 }, { -1, -1 }
 	};
 
-	// 1. ÃÔ¹¬À©Õ¹:ÔÚÃÔ¹¬µÄ±ßÔµÈ«¼ÓÉÏÇ½£¬ÒÔ¼ò»¯±ßÔµÉÏµÄÃÔ¹¬ÒÆ¶¯·½Ïò¼ì²é
+	// 1. è¿·å®«æ‰©å±•:åœ¨è¿·å®«çš„è¾¹ç¼˜å…¨åŠ ä¸Šå¢™ï¼Œä»¥ç®€åŒ–è¾¹ç¼˜ä¸Šçš„è¿·å®«ç§»åŠ¨æ–¹å‘æ£€æŸ¥
 	int col2 = col + 2, row2 = row + 2;
 	unsigned char *maze2 = (unsigned char *)malloc(col2*row2*sizeof(unsigned char));
 	if (NULL == maze2)	return -1;
@@ -249,7 +250,7 @@ int maze_search(unsigned char *maze, int col, int row,
 	}
 	memset(dst, 1, row2);
 
-	// markÊı×é£¬ÓÃÓÚ¼ÇÂ¼ÒÑ¾­¼ì²é¹ıµÄÃÔ¹¬Î»ÖÃ
+	// markæ•°ç»„ï¼Œç”¨äºè®°å½•å·²ç»æ£€æŸ¥è¿‡çš„è¿·å®«ä½ç½®
 	unsigned char *mark = (unsigned char *)malloc(col2*row2*sizeof(unsigned char));
 	if (NULL == mark)
 	{
@@ -259,15 +260,15 @@ int maze_search(unsigned char *maze, int col, int row,
 	memset(mark, 0, col2*row2*sizeof(unsigned char));
 
 
-	// ÃÔ¹¬ËÑË÷
+	// è¿·å®«æœç´¢
 	stack *stk = stack_open(col2*row2, sizeof(elements));
 	if (NULL == stk)	return -1;
-	startx++, starty++, endx++, endy++;	// ÓÉÓÚÃÔ¹¬À©Õ¹£¬Òò´Ë×ø±ê¶¼Òª¼Ó1
+	startx++, starty++, endx++, endy++;	// ç”±äºè¿·å®«æ‰©å±•ï¼Œå› æ­¤åæ ‡éƒ½è¦åŠ 1
 	elements pos;
 	pos.dir = 0, pos.x = startx, pos.y = starty;
 	mark[pos.y*row2 + pos.x] = 1;
 	stk->add(stk, &pos);
-	int found = 0;	// 0:Î´ÕÒµ½ºÏÊÊµÄÂ·¾¶, 1:ÒÑ¾­ÕÒµ½ºÏÊÊµÄÂ·¾¶
+	int found = 0;	// 0:æœªæ‰¾åˆ°åˆé€‚çš„è·¯å¾„, 1:å·²ç»æ‰¾åˆ°åˆé€‚çš„è·¯å¾„
 	int x, y, dir;
 	int nextx, nexty;
 	while (0 == stk->empty(stk) && 0 == found)
@@ -276,23 +277,23 @@ int maze_search(unsigned char *maze, int col, int row,
 		x = pos.x, y = pos.y, dir = pos.dir;
 		while (dir < 8 && 0 == found)
 		{
-			// ÒÆ¶¯µ½ÏÂÒ»¸ö·½Ïò
+			// ç§»åŠ¨åˆ°ä¸‹ä¸€ä¸ªæ–¹å‘
 			nextx = x + move[dir].x;
 			nexty = y + move[dir].y;
 			if (nextx == endx && nexty == endy)
 			{
-				// ²éÕÒµ½Ê±½«µ±Ç°½ÚµãÒÔ¼°×îÖÕ½ÚµãÑ¹Õ»
+				// æŸ¥æ‰¾åˆ°æ—¶å°†å½“å‰èŠ‚ç‚¹ä»¥åŠæœ€ç»ˆèŠ‚ç‚¹å‹æ ˆ
 				pos.x = x, pos.y = y, pos.dir;
 				stk->add(stk, &pos);
 				pos.x = nextx, pos.y = nexty;
 				stk->add(stk, &pos);
 				found = 1;
 			}
-			// Á¬Í¨²¢ÇÒÎ´×ß¹ı
+			// è¿é€šå¹¶ä¸”æœªèµ°è¿‡
 			else if (0 == maze2[nexty*row2 + nextx] && 0 == mark[nexty*row2 + nextx])
 			{
 				mark[nexty*row2 + nextx] = 1;
-				pos.x = x, pos.y = y, pos.dir = ++dir; // µ±Ç°·½ÏòÒÑ¼ì²é£¬Òò´Ë·½ÏòÒªÏÈ¼Ó1
+				pos.x = x, pos.y = y, pos.dir = ++dir; // å½“å‰æ–¹å‘å·²æ£€æŸ¥ï¼Œå› æ­¤æ–¹å‘è¦å…ˆåŠ 1
 				stk->add(stk, &pos);
 				x = nextx, y = nexty, dir = 0;
 			}
@@ -316,7 +317,7 @@ int maze_search(unsigned char *maze, int col, int row,
 
 		path_len = index1;
 
-		// µ¹Ğò
+		// å€’åº
 		index1 -= 2;
 		while (index2 < index1)
 		{	
@@ -339,14 +340,14 @@ int maze_search(unsigned char *maze, int col, int row,
 }
 
 /*
-	ÃÔ¹¬ËÑË÷¼ì²éº¯Êı: ÓÃÓÚ¼ì²épathÖĞµÄÂ·¾¶ÊÇ·ñÎªÓĞĞ§
+	è¿·å®«æœç´¢æ£€æŸ¥å‡½æ•°: ç”¨äºæ£€æŸ¥pathä¸­çš„è·¯å¾„æ˜¯å¦ä¸ºæœ‰æ•ˆ
 */
 int maze_search_check(unsigned char *maze, int col, int row,
 	int startx, int starty, int endx, int endy, unsigned int *path, int path_len)
 {
 	int index, x, y, nextx, nexty;
 
-	// ²ÎÊı¼ì²é
+	// å‚æ•°æ£€æŸ¥
 	if (NULL == maze || col < 1 || row < 1
 		|| (startx < 0 || startx >= col) || (starty < 0 || starty >= row)
 		|| (endx < 0 || endx >= row) || (endy < 0 || endy >= col)
@@ -355,14 +356,14 @@ int maze_search_check(unsigned char *maze, int col, int row,
 		return 0;
 	}
 	
-	// ³ö¿Ú¼ì²é
+	// å‡ºå£æ£€æŸ¥
 	index = path_len - 2;
 	x = path[index], y = path[index+1];
 	if (x != endx || y != endy)
 	{
 		return 0;
 	}
-	// Èë¿Ú¼ì²é
+	// å…¥å£æ£€æŸ¥
 	index = 0;
 	x = path[index], y = path[index+1];
 	if (x != startx || y != starty
@@ -370,7 +371,7 @@ int maze_search_check(unsigned char *maze, int col, int row,
 	{
 		return 0;
 	}
-	// Â·¾¶¼ì²é
+	// è·¯å¾„æ£€æŸ¥
 	index += 2;
 	while (index < path_len)
 	{
@@ -389,19 +390,19 @@ int maze_search_check(unsigned char *maze, int col, int row,
 }
 
 /***********************************************************************************
-Õ»µÄÓ¦ÓÃ: ºó×º±í´ïÊ½ÇóÖµ
+æ ˆçš„åº”ç”¨: åç¼€è¡¨è¾¾å¼æ±‚å€¼
 ***********************************************************************************/
-// ×óÀ¨ºÅ£¬ÓÒÀ¨ºÅ£¬¼Ó£¬¼õ£¬³Ë£¬³ı£¬ÇóÓà£¬²Ù×÷Êı
+// å·¦æ‹¬å·ï¼Œå³æ‹¬å·ï¼ŒåŠ ï¼Œå‡ï¼Œä¹˜ï¼Œé™¤ï¼Œæ±‚ä½™ï¼Œæ“ä½œæ•°
 typedef enum{lparen, rparen, plus, minus, times, divide, mod, eos, operand}en_precedence;
 
-// »ñÈ¡Ò»¸ö´ÊÔª
+// è·å–ä¸€ä¸ªè¯å…ƒ
 static en_precedence get_token(const char* expr, int *location, char** symbol)
 {
 	static char words[100] = { 0 };
 	int index = 1;
 	en_precedence ret;
 
-	while (' ' == expr[(*location)]) // ¹ıÂËµô¶àÓàµÄ¿Õ¸ñ
+	while (' ' == expr[(*location)]) // è¿‡æ»¤æ‰å¤šä½™çš„ç©ºæ ¼
 	{
 		(*location)++;
 	}
@@ -417,7 +418,7 @@ static en_precedence get_token(const char* expr, int *location, char** symbol)
 	case '/':  ret = divide; break;
 	case '%':  ret = mod;  break;
 	case '\0':  ret = eos;  break;
-	default: ret = operand; break; // Ä¬ÈÏÎª²Ù×÷Êı,ÎŞ´íÎó¼ì²é
+	default: ret = operand; break; // é»˜è®¤ä¸ºæ“ä½œæ•°,æ— é”™è¯¯æ£€æŸ¥
 	}
 
 	if (operand == ret)
@@ -436,8 +437,8 @@ static en_precedence get_token(const char* expr, int *location, char** symbol)
 
 
 /* 
-	ºó×º±í´ïÊ½ÇóÖµ: (½öÖ§³Ö'+''-' '*' '/' '%'²Ù×÷,ÒªÇó²Ù×÷ÊıÖ®¼äÒÔ' '¸ô¿ª)
-	·µ»ØÖµ: 1±íÊ¾³É¹¦£¬0±íÊ¾Ê§°Ü
+	åç¼€è¡¨è¾¾å¼æ±‚å€¼: (ä»…æ”¯æŒ'+''-' '*' '/' '%'æ“ä½œ,è¦æ±‚æ“ä½œæ•°ä¹‹é—´ä»¥' 'éš”å¼€)
+	è¿”å›å€¼: 1è¡¨ç¤ºæˆåŠŸï¼Œ0è¡¨ç¤ºå¤±è´¥
 */
 int postfix_expr_eval(const char* postfix_expr, int *pvalue)
 {
@@ -490,15 +491,15 @@ int postfix_expr_eval(const char* postfix_expr, int *pvalue)
 }
 
 /*
-	ÖĞ×º±í´ïÊ½×ªºó×º±í´ïÊ½:
-	ÔËËã·ûÈëÕ»ºÍ³öÕ»»ùÓÚÔËËã·ûÓÅÏÈ¼¶¡£Ã¿µ±ÔÚ±í´ïÊ½ÖĞÓöµ½×óÀ¨ºÅ£¬¾Í½«ÆäÈëÕ»£¬Ö±µ½Óöµ½
-	ÏàÓ¦µÄÓÒÀ¨ºÅÊ±£¬²Å½«Æä³öÕ»(×óÀ¨ºÅÔÚÕ»ÖĞÊ±£¬±íÏÖÎªÒ»¸öµÍÓÅÏÈ¼¶µÄÔËËã·û£¬¶ø²»ÔÚÕ»ÖĞ
-	Ê±£¬ÊÇÒ»¸ö¸ßÓÅÏÈ¼¶µÄÔËËã·û)¡£Òò´Ë£¬ÓĞÁ½ÖÖÓÅÏÈ¼¶£ºÕ»ÄÚÓÅÏÈ¼¶(isp)ºÍÒıÈëÓÅÏÈ¼¶(icp)¡£
-		·µ»ØÖµ: 1±íÊ¾³É¹¦£¬0±íÊ¾Ê§°Ü
+	ä¸­ç¼€è¡¨è¾¾å¼è½¬åç¼€è¡¨è¾¾å¼:
+	è¿ç®—ç¬¦å…¥æ ˆå’Œå‡ºæ ˆåŸºäºè¿ç®—ç¬¦ä¼˜å…ˆçº§ã€‚æ¯å½“åœ¨è¡¨è¾¾å¼ä¸­é‡åˆ°å·¦æ‹¬å·ï¼Œå°±å°†å…¶å…¥æ ˆï¼Œç›´åˆ°é‡åˆ°
+	ç›¸åº”çš„å³æ‹¬å·æ—¶ï¼Œæ‰å°†å…¶å‡ºæ ˆ(å·¦æ‹¬å·åœ¨æ ˆä¸­æ—¶ï¼Œè¡¨ç°ä¸ºä¸€ä¸ªä½ä¼˜å…ˆçº§çš„è¿ç®—ç¬¦ï¼Œè€Œä¸åœ¨æ ˆä¸­
+	æ—¶ï¼Œæ˜¯ä¸€ä¸ªé«˜ä¼˜å…ˆçº§çš„è¿ç®—ç¬¦)ã€‚å› æ­¤ï¼Œæœ‰ä¸¤ç§ä¼˜å…ˆçº§ï¼šæ ˆå†…ä¼˜å…ˆçº§(isp)å’Œå¼•å…¥ä¼˜å…ˆçº§(icp)ã€‚
+		è¿”å›å€¼: 1è¡¨ç¤ºæˆåŠŸï¼Œ0è¡¨ç¤ºå¤±è´¥
 */
 int middlefix_to_postfix(const char* middlefix_expr, char* postfix_expr)
 {
-	// Õ»ÄÚÓÅÏÈ¼¶ºÍÒıÈëÓÅÏÈ¼¶£¬ÒÀ´ÎÊÇen_precedenceµÄÓÅÏÈ¼¶
+	// æ ˆå†…ä¼˜å…ˆçº§å’Œå¼•å…¥ä¼˜å…ˆçº§ï¼Œä¾æ¬¡æ˜¯en_precedenceçš„ä¼˜å…ˆçº§
 	static const int isp[] = {0, 19, 12, 12, 13, 13, 13, 0};
 	static const int icp[] = {20, 19, 12, 12, 13, 13, 13, 0};
 	static const char* token_str[] = {
@@ -533,7 +534,7 @@ int middlefix_to_postfix(const char* middlefix_expr, char* postfix_expr)
 		{
 			strcpy(&postfix_expr[postfix_index], chsymbol);	
 			postfix_index += strlen(chsymbol);
-			postfix_expr[postfix_index++] = ' ';  // ²Ù×÷ÊıÖ®ºó¼Ó¿Õ¸ñ£¬ÒÔ±£Ö¤²Ù×÷ÊıÖ®¼äÒÔ¿Õ¸ñ¸ô¿ª
+			postfix_expr[postfix_index++] = ' ';  // æ“ä½œæ•°ä¹‹ååŠ ç©ºæ ¼ï¼Œä»¥ä¿è¯æ“ä½œæ•°ä¹‹é—´ä»¥ç©ºæ ¼éš”å¼€
 		}
 		else if (rparen == token)
 		{
@@ -550,7 +551,7 @@ int middlefix_to_postfix(const char* middlefix_expr, char* postfix_expr)
 				strcpy(&postfix_expr[postfix_index], token_str[token2]);	
 				postfix_index += strlen(token_str[token2]);	
 			}
-			stk->add(stk, &token2);	// ¹é»¹»ñÈ¡µÄĞ¡ÓÚµ±Ç°tokenµÄÔËËã·û
+			stk->add(stk, &token2);	// å½’è¿˜è·å–çš„å°äºå½“å‰tokençš„è¿ç®—ç¬¦
 			stk->add(stk, &token);
 		}
 	}
@@ -567,4 +568,153 @@ int middlefix_to_postfix(const char* middlefix_expr, char* postfix_expr)
 
 	return 1;
 
+}
+
+/***********************************************************************************
+åŒç«¯é˜Ÿåˆ—ä¹‹æ•°ç»„å®ç°
+***********************************************************************************/
+static int dequeue_full(void* handle)
+{
+	dequeue *dq = (dequeue*)handle;
+
+	return (dq->_cnt == dq->_dequeue_size);
+}
+
+static int dequeue_empty(void * handle)
+{
+	dequeue *dq = (dequeue*)handle;
+
+	return (dq->_cnt == 0);
+}
+
+static int dequeue_add_front(void *handle, void* pitem)
+{
+	dequeue *dq = (dequeue*)handle;
+
+	if (1 == dq->full(handle))
+	{
+		return 0;
+	}
+
+
+	char *dst = (char *)dq->_dequeue;
+	dst += dq->_front * dq->_element_size;
+	memcpy(dst, pitem, dq->_element_size);
+
+	dq->_front = (dq->_front + 1) % (dq->_dequeue_size);
+	dq->_cnt++;
+
+	return 1;
+}
+
+static int dequeue_add_rear(void *handle, void* pitem)
+{
+	dequeue *dq = (dequeue*)handle;
+
+	if (1 == dq->full(handle))
+	{
+		return 0;
+	}
+
+
+	char *dst = (char *)dq->_dequeue;
+	dst += dq->_rear * dq->_element_size;
+	memcpy(dst, pitem, dq->_element_size);
+
+	if (0 == dq->_rear)
+	{
+		dq->_rear = dq->_dequeue_size - 1;
+	}
+	else
+	{
+		dq->_rear--;
+	}
+
+	dq->_cnt++;
+
+	return 1;
+}
+
+static int dequeue_del_front(void *handle, void* pitem)
+{
+	dequeue *dq = (dequeue*)handle;
+
+	if (1 == dq->empty(handle))
+	{
+		return 0;
+	}
+
+	if (dq->_front == 0)
+	{
+		dq->_front = dq->_dequeue_size - 1;
+	}
+	else
+	{
+		dq->_front -= 1;
+	}
+
+	char *src = (char *)dq->_dequeue;
+	src += dq->_front * dq->_element_size;
+	memcpy(pitem, src, dq->_element_size);
+
+	dq->_cnt--;
+
+	return 1;
+}
+
+static int dequeue_del_rear(void *handle, void* pitem)
+{
+	dequeue *dq = (dequeue*)handle;
+
+	if (1 == dq->empty(handle))
+	{
+		return 0;
+	}
+
+	dq->_rear = (dq->_rear + 1) % dq->_dequeue_size;
+
+	char *src = (char *)dq->_dequeue;
+	src += dq->_rear * dq->_element_size;
+	memcpy(pitem, src, dq->_element_size);
+
+	dq->_cnt--;
+
+	return 1;
+}
+
+dequeue* dequeue_open(int dequeue_size, int element_size)
+{
+	assert(dequeue_size >= 0);
+	assert(element_size >= 1);
+
+	dequeue* dq = (dequeue*)malloc(sizeof(dequeue));
+	assert(NULL != dq);
+
+	dq->_dequeue_size = (dequeue_size == 0 ? DEFAULT_DEQUEUE_SIZE : dequeue_size);
+	dq->_dequeue = malloc(dq->_dequeue_size * element_size);
+	if (NULL == dq->_dequeue)
+	{
+		free(dq);
+		return NULL;
+	}
+
+	dq->_rear = dq->_dequeue_size - 1;
+	dq->_front = 0;
+	dq->_element_size = element_size;
+	dq->_cnt = 0;
+
+	dq->full = dequeue_full;
+	dq->empty = dequeue_empty;
+	dq->add_front = dequeue_add_front;
+	dq->del_front = dequeue_del_front;
+	dq->add_rear = dequeue_add_rear;
+	dq->del_rear = dequeue_del_rear;
+
+	return dq;
+}
+
+void dequeue_close(dequeue* handle)
+{
+	free(handle->_dequeue);
+	free(handle);
 }
