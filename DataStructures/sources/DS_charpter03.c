@@ -394,35 +394,38 @@ int maze_search_check(unsigned char *maze, int col, int row,
 // 左括号，右括号，加，减，乘，除，求余，操作数
 typedef enum{lparen, rparen, plus, minus, times, divide, mod, eos, operand}en_precedence;
 
-// 获取一个词元,各词元间必须以' '隔开
+// 获取一个词元
 static en_precedence get_token(const char* expr, int *location, char** symbol)
 {
 	static char words[100] = { 0 };
 	int index = 1;
 	en_precedence ret;
-	
+
+	while (' ' == expr[(*location)]) // 过滤掉多余的空格
+	{
+		(*location)++;
+	}
+
 	words[0] = expr[(*location)++];
 	switch (words[0])
 	{
-		case '(': 	ret = lparen;	break;
-		case ')':  	ret = rparen;	break;
-		case '+': 	ret = plus;		break;
-		case '-': 	ret = minus;	break;
-		case '*': 	ret = times;	break;
-		case '/': 	ret = divide;	break;
-		case '%': 	ret = mod;		break;
-		case '\0': 	ret = eos;		break;
-		default:	ret = operand;	break;	// 默认为操作数,无错误检查
+	case '(':  ret = lparen; break;
+	case ')':   ret = rparen; break;
+	case '+':  ret = plus;  break;
+	case '-':  ret = minus; break;
+	case '*':  ret = times; break;
+	case '/':  ret = divide; break;
+	case '%':  ret = mod;  break;
+	case '\0':  ret = eos;  break;
+	default: ret = operand; break; // 默认为操作数,无错误检查
 	}
-	if (eos != ret)
+
+	if (operand == ret)
 	{
-		while ((words[index++] = expr[(*location)++]) != ' ')
-			;
-	}
-	
-	while (' ' == expr[(*location)])	// 过滤掉多余的空格
-	{
-		(*location)++;
+		while (expr[(*location)] >= '0' && expr[(*location)] <= '9')
+		{
+			words[index++] = expr[(*location)++];
+		}
 	}
 
 	words[index] = '\0';
@@ -431,9 +434,10 @@ static en_precedence get_token(const char* expr, int *location, char** symbol)
 	return ret;
 }
 
+
 /* 
-	后缀表达式求值: (仅支持'+''-' '*' '/' '%'操作,要求每个词元之间以' '隔开)
-		返回值: 1表示成功，0表示失败
+	后缀表达式求值: (仅支持'+''-' '*' '/' '%'操作,要求操作数之间以' '隔开)
+	返回值: 1表示成功，0表示失败
 */
 int postfix_expr_eval(const char* postfix_expr, int *pvalue)
 {
@@ -529,6 +533,7 @@ int middlefix_to_postfix(const char* middlefix_expr, char* postfix_expr)
 		{
 			strcpy(&postfix_expr[postfix_index], chsymbol);	
 			postfix_index += strlen(chsymbol);
+			postfix_expr[postfix_index++] = ' ';  // 操作数之后加空格，以保证操作数之间以空格隔开
 		}
 		else if (rparen == token)
 		{

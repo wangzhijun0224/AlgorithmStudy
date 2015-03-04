@@ -327,8 +327,10 @@ static void free2d(_link** t, int n)
 
 /****************************************************************
 将点放入网格中:
-	针对这个应用，可以将统计邻近点的动作也放入此函数中
+针对这个应用，可以将统计邻近点的动作也放入此函数中
 ****************************************************************/
+#define INSERT_AND_COUNT    0
+#if INSERT_AND_COUNT
 static void grid_insert(_link** grid, _link node, int factor, int *cnt, double d)
 {
 	int X = (int)(node->p.x * factor) + 1;
@@ -352,9 +354,22 @@ static void grid_insert(_link** grid, _link node, int factor, int *cnt, double d
 	node->next = grid[X][Y];
 	grid[X][Y] = node;
 }
+#else
+static void grid_insert(_link** grid, _link node, int factor)
+{
+	int X = (int)(node->p.x * factor) + 1;
+	int Y = (int)(node->p.y * factor) + 1;
 
+	// 当x或者y为1.0时,应该减1
+	if (X == factor + 1)    X -= 1;
+	if (Y == factor + 1)    Y -= 1;
+
+	node->next = grid[X][Y];
+	grid[X][Y] = node;
+}
+#endif
 /****************************************************************
-将单位正方形划分为大小相等的叫嚣的正方形网格。然后对每个正方形网格，
+将单位正方形划分为大小相等的较小的正方形网格。然后对每个正方形网格，
 为所有其中的点生成一个链表。通过二维素族，可以立即访问已知点附近的
 点集合。
 空间复杂度： O(1/d*d + N)
@@ -388,13 +403,58 @@ int near_point(int n, double d, double *randdata)
 	{
 		head[i].p.x = randdata[index++];
 		head[i].p.y = randdata[index++];
-
-		grid_insert(grid, &head[i], G, &cnt, d2);	
+#if INSERT_AND_COUNT
+		grid_insert(grid, &head[i], G, &cnt, d2);
+#else
+		grid_insert(grid, &head[i], G);
+#endif
 	}
+
+#if (!INSERT_AND_COUNT)
+	for (int i = 1; i < G + 1; i++)     // 不需要考虑哨兵,因此只到G+1
+	{
+		for (int j = 1; j < G + 1; j++)
+		{
+			for (_link cur = grid[i][j]; cur != NULL; cur = cur->next)
+			{
+				// 当前网格链表中的其它元素
+				for (_link tmp = cur->next; tmp != NULL; tmp = tmp->next)
+				{
+					if (point_distance(cur->p, tmp->p) < d2) cnt++;
+				}
+
+				// 右边网格链表
+				for (_link tmp = grid[i][j + 1]; tmp != NULL; tmp = tmp->next)
+				{
+					if (point_distance(cur->p, tmp->p) < d2) cnt++;
+				}
+
+				// 左下网格链表
+				for (_link tmp = grid[i + 1][j - 1]; tmp != NULL; tmp = tmp->next)
+				{
+					if (point_distance(cur->p, tmp->p) < d2) cnt++;
+				}
+
+				// 下方网格链表
+				for (_link tmp = grid[i + 1][j]; tmp != NULL; tmp = tmp->next)
+				{
+					if (point_distance(cur->p, tmp->p) < d2) cnt++;
+				}
+
+				// 右下方网格链表
+				for (_link tmp = grid[i + 1][j + 1]; tmp != NULL; tmp = tmp->next)
+				{
+					if (point_distance(cur->p, tmp->p) < d2) cnt++;
+				}
+
+			}
+		}
+	}
+#endif
 
 	free(head);
 	free2d(grid, G + 2);
 
 	return cnt;
 }
-/************************************** begin ***********************************************/
+/************************************** end ***********************************************/

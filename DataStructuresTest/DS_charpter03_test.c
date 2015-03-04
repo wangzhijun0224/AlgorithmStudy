@@ -150,6 +150,11 @@ static void postfix_expr_eval_test0(void)
 	CU_ASSERT_EQUAL(result, 1);
 	CU_ASSERT_EQUAL(value, 24);
 
+	strcpy_s(postfix_expr, 100, "12 3 4*+");
+	result = postfix_expr_eval(postfix_expr, &value);
+	CU_ASSERT_EQUAL(result, 1);
+	CU_ASSERT_EQUAL(value, 24);
+
 }
 
 static void middlefix_to_postfix_test0(void)
@@ -182,6 +187,10 @@ static void middlefix_to_postfix_test0(void)
 	CU_ASSERT_PTR_DATA_EQUAL(postfix_expr, "1 30 40 * + ", sizeof("1 30 40 * + "));
 
 	strcpy_s(middlefix_expr, 100, "12 + 3 * 40 ");
+	middlefix_to_postfix(middlefix_expr, postfix_expr);
+	CU_ASSERT_PTR_DATA_EQUAL(postfix_expr, "12 3 40 * + ", sizeof("12 3 40 * + "));
+
+	strcpy_s(middlefix_expr, 100, "12+3*40");
 	middlefix_to_postfix(middlefix_expr, postfix_expr);
 	CU_ASSERT_PTR_DATA_EQUAL(postfix_expr, "12 3 40 * + ", sizeof("12 3 40 * + "));
 }
