@@ -5,6 +5,7 @@
 #include <math.h>
 #include <assert.h>
 
+#if (!USE_DEQUEUE_FOR_STACK_AND_QUEUE)
 static int stack_full(void *handle)
 {
 	stack* stk = (stack*)handle;
@@ -184,6 +185,7 @@ void queue_close(queue* handle)
 	free(handle->_queue);
 	free(handle);
 }
+#endif
 
 /***********************************************************************************
 	栈的应用: 迷宫搜索算法
@@ -718,3 +720,101 @@ void dequeue_close(dequeue* handle)
 	free(handle->_dequeue);
 	free(handle);
 }
+
+#if (USE_DEQUEUE_FOR_STACK_AND_QUEUE)
+/***********************************************************************************
+栈之双端队列实现
+***********************************************************************************/
+static int stack_full(void *handle)
+{
+	stack* stk = (stack*)handle;
+
+	return stk->_dq->full(stk->_dq);
+}
+static int stack_empty(void *handle)
+{
+	stack* stk = (stack*)handle;
+	return stk->_dq->empty(stk->_dq);
+}
+static int stack_add(void *handle, void* pitem)
+{
+	stack* stk = (stack*)handle;
+	return stk->_dq->add_front(stk->_dq, pitem);
+}
+static int stack_del(void *handle, void *pitem)
+{
+	stack* stk = (stack*)handle;
+	return stk->_dq->del_front(stk->_dq, pitem);
+}
+// ======================================================
+stack* stack_open(int stk_size, int element_size)
+{
+	assert(stk_size >= 0);
+	assert(element_size >= 1);
+	stack *stk = (stack *)malloc(sizeof(stack));
+	assert(NULL != stk);
+	stk->_dq = dequeue_open(stk_size, element_size);
+	if (NULL == stk->_dq)
+	{
+		free(stk);
+		return NULL;
+	}
+	stk->full = stack_full;
+	stk->empty = stack_empty;
+	stk->add = stack_add;
+	stk->del = stack_del;
+	return stk;
+}
+void stack_close(stack* handle)
+{
+	dequeue_close(handle->_dq);
+	free(handle);
+}
+/***********************************************************************************
+队列之双端队列实现
+***********************************************************************************/
+static int queue_full(void *handle)
+{
+	queue* q = (queue*)handle;
+	return q->_dq->full(q->_dq);
+}
+static int queue_empty(void *handle)
+{
+	queue* q = (queue*)handle;
+	return q->_dq->empty(q->_dq);
+}
+static int queue_add(void *handle, void* pitem)
+{
+	queue* q = (queue*)handle;
+	return q->_dq->add_front(q->_dq, pitem);
+}
+static int queue_del(void *handle, void *pitem)
+{
+	queue* q = (queue*)handle;
+	return q->_dq->del_rear(q->_dq, pitem);
+}
+// ======================================================
+queue* queue_open(int queue_size, int element_size)
+{
+	assert(queue_size >= 0);
+	assert(element_size >= 1);
+	queue *q = (queue *)malloc(sizeof(queue));
+	assert(NULL != q);
+	q->_dq = dequeue_open(queue_size, element_size);
+	if (NULL == q->_dq)
+	{
+		free(q);
+		return NULL;
+	}
+	q->full = queue_full;
+	q->empty = queue_empty;
+	q->add = queue_add;
+	q->del = queue_del;
+	return q;
+}
+void queue_close(queue* handle)
+{
+	dequeue_close(handle->_dq);
+	free(handle);
+}
+#endif

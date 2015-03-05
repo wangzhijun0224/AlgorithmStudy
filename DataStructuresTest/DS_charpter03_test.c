@@ -31,27 +31,22 @@ static void stack_test(void)
 
 static void queue_test(void)
 {
-	queue *q = queue_open(10);
-	queue_elements item;
+	int item;
+	queue *q = queue_open(10, sizeof(int));
 
 	if (NULL == q) return;
-
 	CU_ASSERT_EQUAL(1, q->empty(q));
-
 	for (int i = 0; i < 10; ++i)
 	{
-		CU_ASSERT_EQUAL(1, q->add(q, i));
+		CU_ASSERT_EQUAL(1, q->add(q, &i));
 	}
-
 	CU_ASSERT_EQUAL(1, q->full(q));
-
 	for (int i = 0; i < 10; ++i)
 	{
 		CU_ASSERT_EQUAL(1, q->del(q, &item));
 		CU_ASSERT_EQUAL(i, item);
 	}
 	CU_ASSERT_EQUAL(1, q->empty(q));
-
 	queue_close(q);
 }
 
