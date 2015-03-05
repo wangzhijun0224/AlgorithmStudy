@@ -572,6 +572,7 @@ int middlefix_to_postfix(const char* middlefix_expr, char* postfix_expr)
 
 }
 
+#if (!USE_DLIST_FOR_DEQUEUE)
 /***********************************************************************************
 双端队列之数组实现
 ***********************************************************************************/
@@ -720,6 +721,7 @@ void dequeue_close(dequeue* handle)
 	free(handle->_dequeue);
 	free(handle);
 }
+#endif
 
 #if (USE_DEQUEUE_FOR_STACK_AND_QUEUE)
 /***********************************************************************************
@@ -815,6 +817,198 @@ queue* queue_open(int queue_size, int element_size)
 void queue_close(queue* handle)
 {
 	dequeue_close(handle->_dq);
+	free(handle);
+}
+#endif
+
+
+/***********************************************************************************
+节点抽象
+***********************************************************************************/
+// 非完整类型抽象，申请节点的时候需要申请sizeof(_node)+sizeof(item)大小
+typedef struct _node
+{
+	dlink prev;
+	dlink next;
+}node;
+
+static dlink new_node(int item_size)
+{
+	dlink tmpnode = (dlink)malloc(sizeof(*tmpnode) + item_size);
+	assert(NULL != tmpnode);
+	tmpnode->prev = tmpnode->next = NULL;
+
+	return tmpnode;
+}
+
+static void copy_item_to_node(dlink node, void *pitem, int item_size)
+{
+	void *dst = (char *)node + sizeof(*node);
+	memcpy(dst, pitem, item_size);
+}
+
+static void link_get_item(dlink p, int item_size, void *pitem)
+{
+	void *src = (char *)p + sizeof(*p);
+	memcpy(pitem, src, item_size);
+}
+
+// newnode插在p之后
+static void link_insert_after(dlink p, dlink newnode)
+{
+	newnode->prev = p;
+	newnode->next = p->next;
+	p->next->prev = newnode;
+	p->next = newnode;
+}
+
+static void link_insert_before(dlink p, dlink newnode)
+{
+	newnode->next = p;
+	newnode->prev = p->prev;
+	p->prev->next = newnode;
+	p->prev = newnode;
+}
+
+static void link_del(dlink p)
+{
+	p->prev->next = p->next;
+	p->next->prev = p->prev;
+	free(p);
+
+}
+
+#if USE_DLIST_FOR_DEQUEUE
+static int dequeue_full(void* handle)
+{
+	dequeue *dq = (dequeue*)handle;
+
+	if (dq->_size == 0)
+	{
+		return 0;
+	}
+
+	return (dq->_size == dq->_cnt);
+}
+
+static int dequeue_empty(void * handle)
+{
+	dequeue *dq = (dequeue*)handle;
+
+	return (dq->_cnt == 0);
+}
+
+static int dequeue_add_front(void *handle, void* pitem)
+{
+	dequeue *dq = (dequeue*)handle;
+
+	if (1 == dq->full(handle))
+	{
+		return 0;
+	}
+
+	dlink newnode = new_node(dq->_element_size);
+	copy_item_to_node(newnode, pitem, dq->_element_size);
+
+	link_insert_after(dq->_guard, newnode);
+
+	dq->_cnt++;
+
+	return 1;
+}
+
+
+static int dequeue_add_rear(void *handle, void* pitem)
+{
+	dequeue *dq = (dequeue*)handle;
+
+	if (1 == dq->full(handle))
+	{
+		return 0;
+	}
+
+	dlink newnode = new_node(dq->_element_size);
+	copy_item_to_node(newnode, pitem, dq->_element_size);
+
+	link_insert_before(dq->_guard, newnode);
+
+	dq->_cnt++;
+
+	return 1;
+}
+
+static int dequeue_del_front(void *handle, void* pitem)
+{
+	dequeue *dq = (dequeue*)handle;
+
+	if (1 == dq->empty(handle))
+	{
+		return 0;
+	}
+
+	dlink head = dq->_guard->next;
+	link_get_item(head, dq->_element_size, pitem);
+	link_del(head);
+
+	dq->_cnt--;
+
+	return 1;
+}
+
+static int dequeue_del_rear(void *handle, void* pitem)
+{
+	dequeue *dq = (dequeue*)handle;
+
+	if (1 == dq->empty(handle))
+	{
+		return 0;
+	}
+
+	dlink tail = dq->_guard->prev;
+	link_get_item(tail, dq->_element_size, pitem);
+	link_del(tail);
+
+	dq->_cnt--;
+
+	return 1;
+}
+
+dequeue* dequeue_open(int dequeue_size, int element_size)
+{
+	assert(element_size >= 1);
+
+	dequeue* dq = (dequeue*)malloc(sizeof(dequeue));
+	assert(NULL != dq);
+
+	dq->_element_size = element_size;
+	dq->_size = dequeue_size < 0 ? 0 : dequeue_size;
+	dq->_cnt = 0;
+
+	dq->_guard = new_node(0);	// 哨兵节点不带数据域
+	dq->_guard->next = dq->_guard->prev = dq->_guard;	// 循环链表
+
+	dq->full = dequeue_full;
+	dq->empty = dequeue_empty;
+	dq->add_front = dequeue_add_front;
+	dq->del_front = dequeue_del_front;
+	dq->add_rear = dequeue_add_rear;
+	dq->del_rear = dequeue_del_rear;
+
+	return dq;
+}
+
+void dequeue_close(dequeue* handle)
+{
+	dlink tmp1, tmp2;
+
+	tmp1 = handle->_guard->next;
+	while (tmp1 != handle->_guard)
+	{
+		tmp2 = tmp1;
+		tmp1 = tmp1->next;
+	}
+	
+	free(handle->_guard);
 	free(handle);
 }
 #endif

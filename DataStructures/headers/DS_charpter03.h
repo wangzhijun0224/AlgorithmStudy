@@ -2,7 +2,7 @@
 #define _DS_CHARPTER03_H_
 
 #define USE_DEQUEUE_FOR_STACK_AND_QUEUE	1
-
+#define USE_DLIST_FOR_DEQUEUE			1
 
 #if (!USE_DEQUEUE_FOR_STACK_AND_QUEUE)
 /***********************************************************************************
@@ -59,8 +59,29 @@ int maze_search_check(unsigned char *maze, int col, int row,
 int postfix_expr_eval(const char* postfix_expr, int *pvalue);
 int middlefix_to_postfix(const char* middlefix_expr, char* postfix_expr);
 
+typedef struct _node* dlink;
+
+#if USE_DLIST_FOR_DEQUEUE
 /***********************************************************************************
-双端队列及用双端队列实现的栈和队列
+双链表实现双端队列
+***********************************************************************************/
+typedef struct
+{
+	dlink _guard;	// 哨兵的next指向头,prev指向尾
+	int _element_size;
+	int _size;		// 为0表示个数无限制
+	int _cnt;
+
+	int(*full)(void* handle);
+	int(*empty)(void * handle);
+	int(*add_front)(void *handle, void* pitem);
+	int(*add_rear)(void *handle, void* pitem);
+	int(*del_front)(void *handle, void* pitem);
+	int(*del_rear)(void *handle, void* pitem);
+}dequeue;
+#else
+/***********************************************************************************
+数组实现双端队列
 ***********************************************************************************/
 #define DEFAULT_DEQUEUE_SIZE 100
 typedef struct
@@ -75,12 +96,13 @@ typedef struct
 	int(*del_front)(void *handle, void* pitem);
 	int(*del_rear)(void *handle, void* pitem);
 }dequeue;
+#endif
 
 dequeue* dequeue_open(int dequeue_size, int element_size);
 void dequeue_close(dequeue* handle);
 
 #if (USE_DEQUEUE_FOR_STACK_AND_QUEUE)
-// 栈
+// 用双端队列实现的栈
 typedef struct
 {
 	dequeue *_dq;
@@ -91,7 +113,7 @@ typedef struct
 }stack;
 stack* stack_open(int stk_size, int element_size);
 void stack_close(stack* handle);
-// 队列
+// // 用双端队列实现的队列
 typedef struct
 {
 	dequeue *_dq;
@@ -103,4 +125,6 @@ typedef struct
 queue *queue_open(int queue_size, int element_size);
 void queue_close(queue* handle);
 #endif
+
+
 #endif
