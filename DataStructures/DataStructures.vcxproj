@@ -14,11 +14,13 @@
     <ClInclude Include="headers\DS_charpter01.h" />
     <ClInclude Include="headers\DS_charpter02.h" />
     <ClInclude Include="headers\DS_charpter03.h" />
+    <ClInclude Include="headers\DS_charpter04.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="sources\DS_charpter01.c" />
     <ClCompile Include="sources\DS_charpter02.c" />
     <ClCompile Include="sources\DS_charpter03.c" />
+    <ClCompile Include="sources\DS_charpter04.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{42128F7D-034E-4167-82A0-C7DCE7142B40}</ProjectGuid>
@@ -61,7 +63,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>.\headers</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalOptions>/D_CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D_CRT_SECURE_NO_WARNINGS  /D"inline"=__inline %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

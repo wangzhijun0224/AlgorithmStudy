@@ -74,6 +74,7 @@
     <ClCompile Include="DS_charpter01_test.c" />
     <ClCompile Include="DS_charpter02_test.c" />
     <ClCompile Include="DS_charpter03_test.c" />
+    <ClCompile Include="DS_charpter04_test.c" />
     <ClCompile Include="DS_test.c" />
     <ClCompile Include="main.c" />
   </ItemGroup>
@@ -81,6 +82,7 @@
     <ClInclude Include="DS_charpter01_test.h" />
     <ClInclude Include="DS_charpter02_test.h" />
     <ClInclude Include="DS_charpter03_test.h" />
+    <ClInclude Include="DS_charpter04_test.h" />
     <ClInclude Include="DS_test.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

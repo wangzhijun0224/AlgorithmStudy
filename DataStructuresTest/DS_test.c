@@ -7,11 +7,13 @@
 #include "DS_charpter01_test.h"
 #include "DS_charpter02_test.h"
 #include "DS_charpter03_test.h"
+#include "DS_charpter04_test.h"
 
 static CU_SuiteInfo suites[] = {
 	{ "suit_datasture01", NULL, NULL, tests_datasture_charpter01 },
 	{ "suit_datasture02", NULL, NULL, tests_datasture_charpter02 },
 	{ "suit_datasture03", NULL, NULL, tests_datasture_charpter03 },
+	{ "suit_datasture04", NULL, NULL, tests_datasture_charpter04 },
 	CU_SUITE_INFO_NULL,
 };
 void AddDataStructuresTests(void)
