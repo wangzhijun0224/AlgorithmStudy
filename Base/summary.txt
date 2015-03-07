@@ -1,0 +1,3 @@
+os_private.h:
+	my_printf()
+	get_system_ms()
