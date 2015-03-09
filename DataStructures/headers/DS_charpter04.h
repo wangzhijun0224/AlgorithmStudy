@@ -17,7 +17,9 @@ typedef struct stack_snode*	stack_slist;
 stack_slist stack_slist_open(int item_size);
 void        stack_slist_close(stack_slist handle);
 int         stack_slist_insert(stack_slist handle, void* pitem);
-int         stack_slist_del(stack_slist handle, void* pitem);
+int         stack_slist_del(stack_slist handle, void* pitem);	// 弹出并删除栈顶元素
+int			stack_slist_top(stack_slist handle, void* pitem);
+int			stack_slist_pop(stack_slist handle);	// 删除栈顶元素
 
 /*************************************************************************************************/
 // 队列抽象(用单链表节点实现)

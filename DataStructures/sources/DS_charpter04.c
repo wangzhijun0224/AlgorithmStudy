@@ -142,6 +142,26 @@ int stack_slist_del(stack_slist handle, void* pitem)
 	return 1;
 }
 
+int stack_slist_top(stack_slist handle, void* pitem)
+{
+	slink top = slink_next_slink(handle->guard);
+	if (top == handle->guard) return 0;
+
+	slink_get_item(top, handle->item_size, pitem);
+
+	return 1;
+}
+
+int stack_slist_pop(stack_slist handle)
+{
+	slink top = slink_next_slink(handle->guard);
+	if (top == handle->guard) return 0;
+
+	slink_del(handle->guard);
+
+	return 1;
+}
+
 /*************************************************************************************************/
 // 用单链表模拟的队列
 struct queue_snode
