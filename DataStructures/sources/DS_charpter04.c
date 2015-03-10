@@ -233,6 +233,8 @@ int queue_slist_del(queue_slist handle, void* pitem)
 
 	slink_del(handle->guard);
 
+	if (head == handle->rear)   handle->rear = handle->guard;
+
 	return 1;
 }
 

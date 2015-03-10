@@ -47,6 +47,15 @@ static void queue_slist_test(void)
 	CU_ASSERT_EQUAL(0, queue_slist_del(q, &item));
 	CU_ASSERT_EQUAL(0, queue_slist_del(q, &item));
 
+	item = 20;
+	CU_ASSERT_EQUAL(1, queue_slist_insert(q, &item));
+	CU_ASSERT_EQUAL(1, queue_slist_del(q, &item));
+	CU_ASSERT_EQUAL(20, item);
+	item = 30;
+	CU_ASSERT_EQUAL(1, queue_slist_insert(q, &item));
+	CU_ASSERT_EQUAL(1, queue_slist_del(q, &item));
+	CU_ASSERT_EQUAL(30, item);
+
 	queue_slist_close(q);
 }
 
