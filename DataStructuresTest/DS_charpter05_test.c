@@ -5,16 +5,16 @@
 
 static void create_btree_test(void)
 {
-	/*
-	Ê÷:
-	A
-	/   \
-	B      C
+/*
+Ê÷:
+	    A
+	  /   \
+	 B      C
 	/ \    / \
-	D   E  F   G
-	/ \
-	H   I
-	*/
+     D   E  F   G
+    / \
+   H   I
+*/
 	char str[] = { 'A', 'B', 'D', 'H', '\0', '\0', 'I', '\0', '\0', 'E',
 		'\0', '\0', 'C', 'F', '\0', '\0', 'G', '\0', '\0' };
 
@@ -28,43 +28,70 @@ static void create_btree_test(void)
 	char ch;
 	btree_get_item(bt, root, &ch);
 	CU_ASSERT_PTR_DATA_EQUAL(&ch, &str[0], sizeof(ch));
-
+	#if BTREE_HAVE_PARENT
+	CU_ASSERT_EQUAL(NULL, btree_get_parent(bt, root));
+	#endif
+	
 	tlink left, right;
 	left = btree_get_lchild(bt, root);
 	btree_get_item(bt, left, &ch);
 	CU_ASSERT_PTR_DATA_EQUAL(&ch, &str[1], sizeof(ch));
-
+	#if BTREE_HAVE_PARENT
+	CU_ASSERT_EQUAL(root, btree_get_parent(bt, left));
+	#endif
+	
 	right = btree_get_rchild(bt, root);
 	btree_get_item(bt, right, &ch);
 	CU_ASSERT_PTR_DATA_EQUAL(&ch, &str[12], sizeof(ch));
-
+	#if BTREE_HAVE_PARENT
+	CU_ASSERT_EQUAL(root, btree_get_parent(bt, right));
+	#endif
+	
 	root = right;
 	tlink tmp = btree_get_lchild(bt, root);
 	btree_get_item(bt, tmp, &ch);
 	CU_ASSERT_PTR_DATA_EQUAL(&ch, &str[13], sizeof(ch));
-
+	#if BTREE_HAVE_PARENT
+	CU_ASSERT_EQUAL(root, btree_get_parent(bt, tmp));
+	#endif
+	
 	tmp = btree_get_rchild(bt, root);
 	btree_get_item(bt, tmp, &ch);
 	CU_ASSERT_PTR_DATA_EQUAL(&ch, &str[16], sizeof(ch));
-
+	#if BTREE_HAVE_PARENT
+	CU_ASSERT_EQUAL(root, btree_get_parent(bt, tmp));
+	#endif
+	
 	root = left;
 	left = btree_get_lchild(bt, root);
 	btree_get_item(bt, left, &ch);
 	CU_ASSERT_PTR_DATA_EQUAL(&ch, &str[2], sizeof(ch));
-
+	#if BTREE_HAVE_PARENT
+	CU_ASSERT_EQUAL(root, btree_get_parent(bt, left));
+	#endif
+	
 	right = btree_get_rchild(bt, root);
 	btree_get_item(bt, right, &ch);
 	CU_ASSERT_PTR_DATA_EQUAL(&ch, &str[9], sizeof(ch));
-
+	#if BTREE_HAVE_PARENT
+	CU_ASSERT_EQUAL(root, btree_get_parent(bt, right));
+	#endif
+	
 	root = left;
 	left = btree_get_lchild(bt, root);
 	btree_get_item(bt, left, &ch);
 	CU_ASSERT_PTR_DATA_EQUAL(&ch, &str[3], sizeof(ch));
-
+	#if BTREE_HAVE_PARENT
+	CU_ASSERT_EQUAL(root, btree_get_parent(bt, left));
+	#endif
+	
 	right = btree_get_rchild(bt, root);
 	btree_get_item(bt, right, &ch);
 	CU_ASSERT_PTR_DATA_EQUAL(&ch, &str[6], sizeof(ch));
-
+	#if BTREE_HAVE_PARENT
+	CU_ASSERT_EQUAL(root, btree_get_parent(bt, right));
+	#endif
+	
 	btree_close(bt);
 }
 
@@ -73,24 +100,23 @@ static void create_btree_test(void)
 */
 static void btree_order_test1(void)
 {
-	/*
-	Ê÷:
-	+
+/*
+Ê÷:
+	   +
+	  / \
+	 *   E
 	/ \
-	*   E
-	/ \
-	*   D
-	/ \
-	/    C
-	/ \
-	A   B
-	*/
+     *   D
+    / \
+   /    C
+  / \
+A   B
+*/
 	char str[] = { '+', '*', '*', '/', 'A', '\0', '\0', 'B', '\0', '\0',
 		'C', '\0', '\0', 'D', '\0', '\0', 'E', '\0', '\0' };
 	char end_item = '\0';
 
 	char str_rlt[sizeof(str) / sizeof(str[0])];
-
 
 	btree bt = btree_open(sizeof(char));
 	btree_make_btree(bt, str, &end_item);

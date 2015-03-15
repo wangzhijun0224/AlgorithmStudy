@@ -10,7 +10,12 @@
 单链表节点抽象
 ***********************************************************************************/
 // 不完全类型,申请节点的空间是需要加上item的大小
-struct treenode{ tlink parent, left, right; };
+struct treenode{ 
+#if BTREE_HAVE_PARENT
+tlink parent;
+#endif
+tlink left, right; 
+};
 
 tlink  tlink_new_tnode(int item_size, void* pitem)
 {
@@ -19,7 +24,10 @@ tlink  tlink_new_tnode(int item_size, void* pitem)
 
 	if (NULL != newnode)
 	{
-		newnode->parent = newnode->left = newnode->right = NULL;
+	#if BTREE_HAVE_PARENT
+		newnode->parent = NULL;
+	#endif
+		newnode->left = newnode->right = NULL;
 		dst = (char *)newnode + sizeof(*newnode);
 		memcpy(dst, pitem, item_size);
 	}
@@ -38,27 +46,38 @@ void   tlink_get_item(tlink p, int item_size, void *pitem)
 
 void   tlink_insert_left(tlink p, tlink newnode)
 {
+#if BTREE_HAVE_PARENT
 	if (newnode != NULL) newnode->parent = p;
+#endif
 	p->left = newnode;
 }
 
 void   tlink_insert_right(tlink p, tlink newnode)
 {
+#if BTREE_HAVE_PARENT
 	if (newnode != NULL) newnode->parent = p;
+#endif
 	p->right = newnode;
 }
 
 void tlink_insert_both(tlink p, tlink left, tlink right)
 {
+#if BTREE_HAVE_PARENT
 	if (left != NULL)	left->parent = p;
-	p->left = left;
-
 	if (right != NULL)	right->parent = p;
+#endif
+
+	p->left = left;
 	p->right = right;
 
 
 }
-
+#if BTREE_HAVE_PARENT
+tlink  tlink_get_parent(tlink p)
+{
+	return p->parent;
+}
+#endif
 tlink  tlink_get_lchild(tlink p)
 {
 	return p->left;
@@ -122,6 +141,28 @@ int btree_is_empty(btree bt)
 	return (bt->root == NULL);
 }
 
+#if BTREE_HAVE_PARENT
+static int btree_create_p(tlink parent, tlink *root, void* pitem, int* pindex, int item_size, void* enditem)
+{
+	void* pcuritem = (char*)pitem + (*pindex)*item_size;
+
+	if (0 == memcmp(pcuritem, enditem, item_size))
+	{
+		return 0;
+	}
+
+	*root = tlink_new_tnode(item_size, pcuritem);
+	if (NULL == *root)  return 0;
+
+	(*root)->parent = parent;
+	
+	(*pindex)++;
+	btree_create_p(*root, tlink_get_lchild_addr(*root), pitem, pindex, item_size, enditem);
+	(*pindex)++;
+	btree_create_p(*root, tlink_get_rchild_addr(*root), pitem, pindex, item_size, enditem);
+	return 1;
+}
+#else
 static int btree_create(tlink *root, void* pitem, int* pindex, int item_size, void* enditem)
 {
 	void* pcuritem = (char*)pitem + (*pindex)*item_size;
@@ -140,11 +181,16 @@ static int btree_create(tlink *root, void* pitem, int* pindex, int item_size, vo
 	btree_create(tlink_get_rchild_addr(*root), pitem, pindex, item_size, enditem);
 	return 1;
 }
+#endif
 
 void btree_make_btree(btree bt, void *pitem, void* penditem)
 {
 	int index = 0;
+	#if BTREE_HAVE_PARENT
+	btree_create_p(NULL, &(bt->root), pitem, &index, bt->item_size, penditem); // root's parent is NULL
+	#else
 	btree_create(&(bt->root), pitem, &index, bt->item_size, penditem);
+	#endif
 }
 
 void btree_get_item(btree bt, tlink root, void *pitem)
@@ -159,6 +205,16 @@ tlink btree_get_root(btree bt)
 {
 	return bt->root;
 }
+
+#if BTREE_HAVE_PARENT
+tlink btree_get_parent(btree bt, tlink root)
+{
+	if (NULL == root)	return NULL;
+	else	return tlink_get_parent(root);
+}
+
+#endif
+
 tlink btree_get_lchild(btree bt, tlink root)
 {
 	if (NULL == root)	return NULL;
@@ -286,7 +342,7 @@ int btree_preorder_norecursion(btree bt, void* pitem)
 
 	assert(NULL != bt);
 	assert(NULL != pitem);
-
+	
 	stack_slist stk = stack_slist_open(sizeof(root));
 
 	while (1)
@@ -296,17 +352,19 @@ int btree_preorder_norecursion(btree bt, void* pitem)
 			dst = (char*)pitem + index*sizeof(char);
 			btree_get_item(bt, root, dst);
 			index++;
+			
 			stack_slist_insert(stk, &root);
+			
 			root = btree_get_lchild(bt, root);
 		}
-
+		
 		if (0 == stack_slist_del(stk, &root)) break;    // 栈为空 
-
+		
 		root = btree_get_rchild(bt, root);
 	}
-
+	
 	stack_slist_close(stk);
-
+	
 	return index;
 }
 
