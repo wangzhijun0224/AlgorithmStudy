@@ -117,6 +117,60 @@ btree btree_open(int item_size)
 	return bt;
 }
 
+#if BTREE_HAVE_PARENT
+static void btree_preorder_copy_recursion(tlink src_root, int item_size, tlink* root, tlink parent)
+{
+	char* src;
+	
+	if (NULL != src_root)
+	{
+		src = (char*)src_root + sizeof(*src_root);
+		*root = tlink_new_tnode(item_size, src);
+		assert(NULL != *root);
+		(*root)->parent = parent;
+		
+		btree_preorder_copy_recursion(src_root->left, item_size, &((*root)->left), *root);
+		btree_preorder_copy_recursion(src_root->right, item_size, &((*root)->right), *root);
+	}
+}
+#else
+static void btree_preorder_copy_recursion(tlink src_root, int item_size, tlink* root)
+{
+	char* src;
+	
+	if (NULL != src_root)
+	{
+		src = (char*)src_root + sizeof(*src_root);
+		*root = tlink_new_tnode(item_size, src);
+		assert(NULL != *root);
+
+		btree_preorder_copy_recursion(src_root->left, item_size, &((*root)->left));
+		btree_preorder_copy_recursion(src_root->right, item_size, &((*root)->right));
+	}
+}
+
+#endif
+
+btree btree_copy(btree src_btree)
+{
+	int item_size;
+	btree new_btree;
+	
+	if (NULL == src_btree)	return NULL;
+	
+	item_size = src_btree->item_size;
+
+	new_btree = btree_open(item_size);
+	if (NULL == new_btree)	return NULL;
+
+	#if BTREE_HAVE_PARENT
+	btree_preorder_copy_recursion(src_btree->root, item_size, &(new_btree->root), NULL);
+	#else
+	btree_preorder_copy_recursion(src_btree->root, item_size, &(new_btree->root));
+	#endif
+	return new_btree;	
+}
+
 static void btree_del(tlink root)
 {
 	if (NULL != root)
@@ -322,6 +376,7 @@ int btree_postorder_recursion(btree bt, void* pitem)
 }
 
 /*************************************************************************************************/
+#if (!BTREE_HAVE_PARENT)
 
 /***********************************************************************************
 非递归版前序遍历:
@@ -368,6 +423,62 @@ int btree_preorder_norecursion(btree bt, void* pitem)
 	return index;
 }
 
+#else
+/***********************************************************************************
+带有parent属性的前序非递归遍历:
+对于任一结点root：
+1)访问结点root;
+2)判断root的左孩子是否为空,若不为空,则将root的左孩子设置为root，循环至1);若为空,则转至3);
+3)取root的右孩子,如果root的右孩子不为空,则将root的右孩子设置为root，循环至1);
+  若为空,则沿root的parent往上搜索,直到parent为空(则遍历结束)或找到一个parent的右孩子不为root为止，
+  将此parent的右孩子设置为root，循环至1）
+***********************************************************************************/
+int btree_preorder_norecursion(btree bt, void* pitem)
+{
+	tlink root, left, right, parent;
+	char* dst;
+	int index = 0;
+
+	assert(NULL != bt);
+	assert(NULL != pitem);
+
+	for (root = btree_get_root(bt); root != NULL; )
+	{
+        while (1)
+		{
+			dst = (char*)pitem + index*sizeof(char);
+			btree_get_item(bt, root, dst);
+			index++;
+
+			left = btree_get_lchild(bt, root);
+			if (NULL == left)	break;
+			else	root = left;
+		}
+
+		right = btree_get_rchild(bt, root);
+		if (NULL == right)	// 右子树遍历完成
+		{
+			// 沿二叉树往上搜索,直到parent为空或找到一个parent的右节点不为root为止
+			parent = tlink_get_parent(root);
+			while (NULL != parent && root == btree_get_rchild(bt, parent))
+			{
+				root = parent;
+				parent = tlink_get_parent(parent);
+			}
+			
+			if (NULL != parent) root = btree_get_rchild(bt, parent);
+			else break;
+				
+		}
+		else	// 有右子树,遍历右子树
+		{
+			root = right;
+		}
+	}
+	
+	return index;
+}
+#endif
 
 /***********************************************************************************
 非递归版前序遍历2:
@@ -409,6 +520,8 @@ int btree_preorder_norecursion2(btree bt, void* pitem)
 
 	return index;
 }
+
+#if (!BTREE_HAVE_PARENT)
 
 /***********************************************************************************
 非递归版中序遍历:
@@ -454,7 +567,73 @@ int btree_inorder_norecursion(btree bt, void* pitem)
 
 	return index;
 }
+#else
+/***********************************************************************************
+带有parent属性的中序非递归遍历:
+对于任一结点root：
+1)判断root的左孩子是否为空,若不为空,则将root的左孩子设置为root，循环本步骤;
+  若为空,则转至2);
+2)访问节点root,然后判断root的右孩子是否为空,若不为空,则将root的右孩子设置为root，循环至1);
+  若为空,则沿root的parent往上搜索,直到parent为空(则遍历结束)或找到一个parent的右孩子不为root为止，
+  此时先访问parent的值,再将此parent的右孩子设置为root，循环至1）
+***********************************************************************************/
+int btree_inorder_norecursion(btree bt, void* pitem)
+{
+	tlink root, parent, left, right;
+	char* dst;
+	int index = 0;
 
+	assert(NULL != bt);
+	assert(NULL != pitem);
+
+	root = btree_get_root(bt);
+
+	while (NULL != root)
+	{
+		while(1)
+		{
+			left = btree_get_lchild(bt, root);
+			if (NULL == left)	break;	// 左子树遍历完成
+			else root = left;
+		}
+
+		dst = (char*)pitem + index*sizeof(char);
+		index++;
+		btree_get_item(bt, root, dst);
+			
+		right = btree_get_rchild(bt, root);
+		if (NULL == right)	
+		{
+			parent = tlink_get_parent(root);
+			while (NULL != parent && root == btree_get_rchild(bt, parent))
+			{
+				root = parent;
+				parent = tlink_get_parent(parent);
+			}
+			
+			if (NULL != parent) 
+			{	
+				// 遍历p的右子树之前,先访问p
+				dst = (char*)pitem + index*sizeof(char);
+				index++;
+				btree_get_item(bt, parent, dst);
+		
+				root = btree_get_rchild(bt, parent);
+			}
+			else break;
+				
+		}
+		else
+		{	
+			root = right;
+		}
+	}
+
+	return index;
+}
+#endif
+
+#if (!BTREE_HAVE_PARENT)
 /***********************************************************************************
 非递归版后序遍历1:
 思路： 对于任一节点P，将其入栈，然后沿其左子树一直往下搜索，直到搜到到美欧左孩子的节点,
@@ -514,7 +693,72 @@ int btree_postorder_norecursion(btree bt, void* pitem)
 
 	return index;
 }
+#else
+/***********************************************************************************
+带有parent属性的后序非递归遍历:
+对于任一结点root：
+1)判断root的左孩子是否为空,若不为空,则将root的左孩子设置为root，循环本步骤;
+  若为空,则转至2);
+2)然后判断root的右孩子是否为空,若不为空,则将root的右孩子设置为root，循环至1);
+  若为空,先访问root的值,再沿root的parent往上搜索:
+    若root为parent的右节点，则访问parent节点并继续向上搜索;
+  若搜索完成后,parent为空,则遍历结束;否则,将root设置为parent的右节点，循环至1);
+***********************************************************************************/
+int btree_postorder_norecursion(btree bt, void* pitem)
+{
+	tlink root, parent, left, right;
+	char* dst;
+	int index = 0;
 
+	assert(NULL != bt);
+	assert(NULL != pitem);
+
+	root = btree_get_root(bt);
+
+	while (NULL != root)
+	{
+		while(1)
+		{
+			left = btree_get_lchild(bt, root);
+			if (NULL == left)	break;	// 左子树遍历完成
+			else root = left;
+		}
+			
+		right = btree_get_rchild(bt, root);
+		if (NULL == right)	
+		{
+			dst = (char*)pitem + index*sizeof(char);
+			index++;
+			btree_get_item(bt, root, dst);
+
+			parent = tlink_get_parent(root);
+			while (NULL != parent && root == btree_get_rchild(bt, parent))
+			{
+				dst = (char*)pitem + index*sizeof(char);
+				index++;
+				btree_get_item(bt, parent, dst);
+			
+				root = parent;
+				parent = tlink_get_parent(parent);
+			}
+			
+			if (NULL != parent) 
+			{	
+				root = btree_get_rchild(bt, parent);
+			}
+			else break;
+				
+		}
+		else
+		{	
+			root = right;
+		}
+	}
+
+	return index;
+}
+
+#endif
 
 /***********************************************************************************
 非递归版后序遍历2:

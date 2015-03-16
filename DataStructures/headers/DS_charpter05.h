@@ -24,6 +24,7 @@ tlink* tlink_get_rchild_addr(tlink p);
 typedef struct binary_tree* btree;
 
 btree btree_open(int item_size);	// 创建一个空树
+btree btree_copy(btree src_btree);	// 复制树
 void btree_close(btree bt);
 int btree_is_empty(btree bt);		// 判断树是否为空
 void btree_make_btree(btree bt, void *pitem, void* penditem);
