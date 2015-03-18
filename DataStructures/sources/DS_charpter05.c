@@ -171,6 +171,23 @@ btree btree_copy(btree src_btree)
 	return new_btree;	
 }
 
+static int btree_equal(tlink first_root, tlink second_root, int item_size)
+{
+ return ((first_root == NULL && second_root == NULL)
+  || (first_root != NULL && second_root != NULL &&
+   0 == memcmp((char*)first_root+sizeof(*first_root), (char*)second_root+sizeof(*second_root), item_size)
+   && btree_equal(first_root->left, second_root->left, item_size)
+   && btree_equal(first_root->right, second_root->right, item_size))
+   );
+}
+
+int btree_is_equal(btree bt1, btree bt2)
+{
+ if (bt1->item_size != bt2->item_size) return 0;
+
+ return btree_equal(bt1->root, bt2->root, bt1->item_size);
+}
+
 static void btree_del(tlink root)
 {
 	if (NULL != root)

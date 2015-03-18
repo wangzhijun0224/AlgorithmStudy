@@ -117,6 +117,8 @@ static void copy_btree_test(void)
 	btree_make_btree(bt1, str, &end_item);
 
 	btree bt = btree_copy(bt1);
+
+	CU_ASSERT_EQUAL(1, btree_is_equal(bt1, bt));
 	
 	tlink root = btree_get_root(bt);
 
