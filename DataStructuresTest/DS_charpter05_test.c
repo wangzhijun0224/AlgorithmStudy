@@ -1,5 +1,7 @@
 #include "DS_charpter05_test.h"
 
+#include "DS_charpter05_1.h"
+
 #include "DS_charpter05.h"
 
 
@@ -354,6 +356,156 @@ static void btree_order_test3(void)
 	btree_close(bt);
 }
 
+static void thread_btree_test0(void)
+{  
+/*
+ 树:
+         +
+        / \
+       *   E
+      / \
+     *   D
+    / \
+   /    C
+  / \
+A   B
+*/
+	char str[] = { '+', '*', '*', '/', 'A', '\0', '\0', 'B', '\0', '\0',
+         'C', '\0', '\0', 'D', '\0', '\0', 'E', '\0', '\0' };
+	char end_item = '\0';
+
+	char str_rlt[sizeof(str) / sizeof(str[0])];
+
+	thread_btree bt = thread_btree_open(sizeof(char));
+	thread_btree_create(bt, str, &end_item);
+
+	int index = 0;
+	index = thread_btree_order(bt, str_rlt);
+
+	CU_ASSERT_EQUAL(index, 9);
+	#if (THREAD_INORDER)
+	CU_ASSERT_PTR_DATA_EQUAL("A/B*C*D+E", str_rlt, strlen("A/B*C*D+E"));
+	#elif (THREAD_PREORDER)
+	CU_ASSERT_PTR_DATA_EQUAL("+**/ABCDE", str_rlt, strlen("+**/ABCDE"));
+	// 后序线索化无意义,比如'/'节点,后序为C,但'/'的左右子树都不为空,无法添加线索          
+	#endif
+	
+	thread_btree_close(bt);
+}
+
+static void thread_btree_test1(void)
+{  
+/*
+ 树:
+		 +
+		/ \
+	   *   E
+	  / \
+	 *	 D
+	/ \
+     /   C
+    / \
+  A	 B
+*/
+
+	char str[] = { '+', '*', '*', '/', 'A', '\0', '\0', 'B', '\0', '\0',
+	 'C', '\0', '\0', 'D', '\0', '\0', 'E', '\0', '\0' };
+	char end_item = '\0';
+
+	char str_rlt[sizeof(str) / sizeof(str[0])];
+
+	btree bt = btree_open(sizeof(char));
+	btree_make_btree(bt, str, &end_item);
+
+	thread_btree bt2 = thread_btree_create_by_btree(bt);
+
+	int index = 0;
+	index = thread_btree_order(bt2, str_rlt);
+
+	CU_ASSERT_EQUAL(index, 9);
+	#if (THREAD_INORDER)
+	CU_ASSERT_PTR_DATA_EQUAL("A/B*C*D+E", str_rlt, strlen("A/B*C*D+E"));
+	#elif (THREAD_PREORDER)
+	CU_ASSERT_PTR_DATA_EQUAL("+**/ABCDE", str_rlt, strlen("+**/ABCDE"));
+	#endif
+
+	btree_close(bt);
+	thread_btree_close(bt2);
+}
+
+static void thread_btree_test2(void)
+{  
+/*
+树:
+	  A
+       /  \
+     B      C
+    / \    / \
+   D   E  F   G
+  / \
+ H   I
+*/
+	char str[] = { 'A', 'B', 'D', 'H', '\0', '\0', 'I', '\0', '\0', 'E',
+	'\0', '\0', 'C', 'F', '\0', '\0', 'G', '\0', '\0' };
+
+	char str_rlt[sizeof(str) / sizeof(str[0])];
+
+	char end_item = '\0';
+
+	thread_btree bt = thread_btree_open(sizeof(char));
+	thread_btree_create(bt, str, &end_item);
+
+	int index = 0;
+	index = thread_btree_order(bt, str_rlt);
+
+	CU_ASSERT_EQUAL(index, 9);
+	#if (THREAD_INORDER)
+	CU_ASSERT_PTR_DATA_EQUAL("HDIBEAFCG", str_rlt, strlen("HDIBEAFCG"));
+	#elif (THREAD_PREORDER)
+	CU_ASSERT_PTR_DATA_EQUAL("ABDHIECFG", str_rlt, strlen("ABDHIECFG"));
+	#endif
+
+	thread_btree_close(bt);
+}
+
+static void thread_btree_test3(void)
+{  
+/*
+树:
+	   A
+	 /  \
+     B	C
+    / \    / \
+   D   E  F   G
+  / \
+ H	 I
+*/
+
+	char str[] = { 'A', 'B', 'D', 'H', '\0', '\0', 'I', '\0', '\0', 'E',
+	'\0', '\0', 'C', 'F', '\0', '\0', 'G', '\0', '\0' };
+
+	char str_rlt[sizeof(str) / sizeof(str[0])];
+
+	char end_item = '\0';
+
+	btree bt2 = btree_open(sizeof(char));
+	btree_make_btree(bt2, str, &end_item);
+
+	thread_btree bt = thread_btree_create_by_btree(bt2);
+	 
+	int index = 0;
+	index = thread_btree_order(bt, str_rlt);
+
+	CU_ASSERT_EQUAL(index, 9);
+	#if (THREAD_INORDER)
+	CU_ASSERT_PTR_DATA_EQUAL("HDIBEAFCG", str_rlt, strlen("HDIBEAFCG"));
+	#elif (THREAD_PREORDER)
+	CU_ASSERT_PTR_DATA_EQUAL("ABDHIECFG", str_rlt, strlen("ABDHIECFG"));
+	#endif
+
+	btree_close(bt2);
+	thread_btree_close(bt);
+}
 
 /***********************************************************************************
 ***********************************************************************************/
@@ -363,5 +515,9 @@ CU_TestInfo tests_datasture_charpter05[] = {
 	{ "btree_order_test1", btree_order_test1 },
 	{ "btree_order_test2", btree_order_test2 },
 	{ "btree_order_test3", btree_order_test3 },
+	{ "thread_btree_test0", thread_btree_test0 },
+  	{ "thread_btree_test1", thread_btree_test1 },
+  	{ "thread_btree_test2", thread_btree_test2 },
+  	{ "thread_btree_test3", thread_btree_test3 },
 	CU_TEST_INFO_NULL,
 };

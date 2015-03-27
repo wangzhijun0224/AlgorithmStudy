@@ -11,6 +11,8 @@ void   tlink_get_item(tlink p, int item_size, void *pitem);	// »ñÈ¡½ÚµãµÄitemÊı¾
 void   tlink_insert_left(tlink p, tlink newnode);			// ½«newnode²åÈëµ½pµÄ×ó¶ù×ÓÉÏ
 void   tlink_insert_right(tlink p, tlink newnode);			// ½«newnode²åÈëµ½pµÄÓÒ¶ù×ÓÉÏ
 void   tlink_insert_both(tlink p, tlink left, tlink right);
+void*  _tlink_get_itemaddr(tlink p);     // »ñÈ¡itemµØÖ·
+
 #if BTREE_HAVE_PARENT
 tlink  tlink_get_parent(tlink p);
 #endif
@@ -31,6 +33,8 @@ int btree_is_empty(btree bt);		// ÅĞ¶ÏÊ÷ÊÇ·ñÎª¿Õ
 void btree_make_btree(btree bt, void *pitem, void* penditem);
 void btree_get_item(btree bt, tlink root, void *pitem);	// »ñÈ¡ÒÔrootÎª¸ù½áµãµÄ¸ù½ÚµãÊı¾İ
 tlink btree_get_root(btree bt);
+int btree_get_itemsize(btree bt);
+
 #if BTREE_HAVE_PARENT
 tlink btree_get_parent(btree bt, tlink root);	// »ñÈ¡root½ÚµãµÄ¸¸½Úµã
 #endif

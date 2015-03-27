@@ -52,6 +52,11 @@ void   tlink_insert_left(tlink p, tlink newnode)
 	p->left = newnode;
 }
 
+void*  _tlink_get_itemaddr(tlink p)
+{
+	return (char*)p + sizeof(*p);
+}
+
 void   tlink_insert_right(tlink p, tlink newnode)
 {
 #if BTREE_HAVE_PARENT
@@ -203,6 +208,13 @@ void btree_close(btree bt)
 	btree_del(bt->root);
 
 	free(bt);
+}
+
+int btree_get_itemsize(btree bt)
+{
+ 	assert (NULL != bt);
+
+	return bt->item_size;
 }
 
 int btree_is_empty(btree bt)
